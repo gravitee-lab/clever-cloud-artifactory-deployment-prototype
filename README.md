@@ -82,62 +82,25 @@ I want the Pipeline to run once a week, On sunday at midnight :
 ## Secrets Initialization
 
 ```bash
-export NAME_OF_ORG="gravitee-lab"
-export NAME_OF_REPO_IN_ORG="gravitee-lab/cicd-infra"
-secrethub org init "${NAME_OF_ORG}"
-secrethub repo init "${NAME_OF_REPO_IN_ORG}"
+export SECRETHUB_ORG="gravitee-lab"
+export SECRETHUB_REPO="cicd"
+secrethub org init "${SECRETHUB_ORG}"
+secrethub repo init "${SECRETHUB_ORG}/${SECRETHUB_REPO}"
 
 
 # --- #
 # for the DEV CI CD WorkFlow of
 # the Gravitee CI CD Orchestrator
-secrethub mkdir --parents "${NAME_OF_REPO_IN_ORG}/dev/jfrog"
-
-# --- #
-# for the STAGING CI CD WorkFlow of
-# the Gravitee CI CD Orchestrator
-secrethub mkdir --parents "${NAME_OF_REPO_IN_ORG}/staging/jfrog"
-
-
-# --- #
-# for the PRODUCTION CI CD WorkFlow of
-# the Gravitee CI CD Orchestrator
-secrethub mkdir --parents "${NAME_OF_REPO_IN_ORG}/prod/jfrog"
+secrethub mkdir --parents "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/artifactory/"
 
 # --- #
 # write quay secrets for the DEV CI CD WorkFlow of
 # the Gravitee CI CD Orchestrator
-export JFROG_CICD_BOT_USERNAME="cicd_bot"
-export JFROG_CICD_BOT_SECRET="inyourdreams;)"
+export ARTIFACTORY_BOT_USERNAME="cicd_bot"
+export ARTIFACTORY_BOT_SECRET="inyourdreams;)"
 
-echo "${JFROG_CICD_BOT_USERNAME}" | secrethub write "${NAME_OF_REPO_IN_ORG}/dev/jfrog/username"
-echo "${JFROG_CICD_BOT_SECRET}" | secrethub write "${NAME_OF_REPO_IN_ORG}/dev/jfrog/password"
-
-echo "${JFROG_CICD_BOT_USERNAME}" | secrethub write "${NAME_OF_REPO_IN_ORG}/staging/jfrog/username"
-echo "${JFROG_CICD_BOT_SECRET}" | secrethub write "${NAME_OF_REPO_IN_ORG}/staging/jfrog/password"
-
-echo "${JFROG_CICD_BOT_USERNAME}" | secrethub write "${NAME_OF_REPO_IN_ORG}/prod/jfrog/username"
-echo "${JFROG_CICD_BOT_SECRET}" | secrethub write "${NAME_OF_REPO_IN_ORG}/prod/jfrog/password"
-
-
-export JFROG_USERNAME_DEV=$(secrethub read gravitee-lab/cicd-infra/dev/jfrog/username)
-export JFROG_SECRET_DEV=$(secrethub read gravitee-lab/cicd-infra/dev/jfrog/password)
-
-export JFROG_USERNAME_STAGING=$(secrethub read gravitee-lab/cicd-infra/staging/jfrog/username)
-export JFROG_SECRET_STAGING=$(secrethub read gravitee-lab/cicd-infra/staging/jfrog/password)
-
-export JFROG_USERNAME_PROD=$(secrethub read gravitee-lab/cicd-infra/prod/jfrog/username)
-export JFROG_SECRET_PROD=$(secrethub read gravitee-lab/cicd-infra/prod/jfrog/password)
-
-echo "JFROG_USERNAME_DEV=[${JFROG_USERNAME_DEV}]"
-echo "JFROG_SECRET_DEV=[${JFROG_SECRET_DEV}]"
-
-echo "JFROG_USERNAME_STAGING=[${JFROG_USERNAME_STAGING}]"
-echo "JFROG_SECRET_STAGING=[${JFROG_SECRET_STAGING}]"
-
-echo "JFROG_USERNAME_STAGING=[${JFROG_USERNAME_STAGING}]"
-echo "JFROG_SECRET_STAGING=[${JFROG_SECRET_STAGING}]"
-
+echo "${ARTIFACTORY_BOT_USERNAME}" | secrethub write "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/artifactory/username"
+echo "${ARTIFACTORY_BOT_SECRET}" | secrethub write "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/artifactory/password"
 
 ```
 * creating secrethub service account with permissions to access secrets in `gravitee-lab/cicd-infra` repo :
