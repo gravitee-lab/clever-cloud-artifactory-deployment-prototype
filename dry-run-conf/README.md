@@ -11,12 +11,7 @@ In the `settings.xml`, are factorized the following configuration elements :
 * the `maven-jar-plugin` `<plugin>` version `latest`, see [in `pom.xml`](../simple-mvn-prj/pom.xml#L90)
 * the `maven-war-plugin` `<plugin>` version `latest`, see [in `pom.xml`](../simple-mvn-prj/pom.xml#L99)
 * the `https://jcenter.bintray.com` `<pluginRepository>`
-* the `cccc` `ccc` version `vvvv`
-* the `cccc` `ccc` version `vvvv`
-* the `cccc` `ccc` version `vvvv`
-* the `cccc` `ccc` version `vvvv`
-* the `cccc` `ccc` version `vvvv`
-* the `cccc` `ccc` version `vvvv`
+
 
 
 ```bash
