@@ -111,8 +111,6 @@ echo "${ARTIFACTORY_BOT_USERNAME}" | secrethub write "${SECRETHUB_ORG}/${SECRETH
 echo "${ARTIFACTORY_BOT_SECRET}" | secrethub write "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/artifactory/password"
 echo "Or a single secret file, the [settings.xml] ...?"
 
-
-
 ```
 * creating secrethub service account with permissions to access secrets in `gravitee-lab/cicd-infra` repo :
 
