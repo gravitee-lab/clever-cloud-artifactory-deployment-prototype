@@ -50,7 +50,9 @@ export FEATURE_ALIAS="init_src_code"
 export COMMIT_MESSAGE="feat.(${FEATURE_ALIAS}): adding base source code"
 # git flow feature start "${FEATURE_ALIAS}"
 git add --all && git commit -m "${COMMIT_MESSAGE}" && git push -u origin HEAD
-
+# git push -u origin --all
+# git flow release start
+# git push -u origin --all && git push -u origin --tags
 ```
 
 
