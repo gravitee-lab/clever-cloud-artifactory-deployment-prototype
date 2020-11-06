@@ -5,8 +5,9 @@ In this folder, is the `settings.xml` used to externally configure the `mvn clea
 
 In the `settings.xml`, are factorized the following configuration elements :
 
-* the `artifactory-maven-plugin` `<plugin>` version `vvvv`, see [in `pom.xml`](../simple-mvn-prj/pom.xml#L44)
-* the `cccc` `ccc` version `vvvv`
+* the `artifactory-maven-plugin` `<plugin>` version `2.7.0`, see [in `pom.xml`](../simple-mvn-prj/pom.xml#L44)
+* the `maven-jar-plugin` `<plugin>` version `latest`, see [in `pom.xml`](../simple-mvn-prj/pom.xml#L90)
+* the `maven-jar-plugin` `<plugin>` version `latest`, see [in `pom.xml`](../simple-mvn-prj/pom.xml#L90)
 * the `cccc` `ccc` version `vvvv`
 * the `cccc` `ccc` version `vvvv`
 * the `cccc` `ccc` version `vvvv`
