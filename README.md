@@ -96,11 +96,22 @@ secrethub mkdir --parents "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/
 # --- #
 # write quay secrets for the DEV CI CD WorkFlow of
 # the Gravitee CI CD Orchestrator
-export ARTIFACTORY_BOT_USERNAME="cicd_bot"
-export ARTIFACTORY_BOT_SECRET="inyourdreams;)"
+export ARTIFACTORY_BOT_USER_NAME="cicd_bot"
+export ARTIFACTORY_BOT_USER_PWD="inyourdreams;)"
 
+sed -i "s#ARTIFACTORY_BOT_USER_NAME#${ARTIFACTORY_BOT_USER_NAME}#g" ./dry-run-conf/settings.xml
+sed -i "s#ARTIFACTORY_BOT_USER_PWD#${ARTIFACTORY_BOT_USER_PWD}#g" ./dry-run-conf/settings.xml
+
+secrethub write --in-file ./dry-run-conf/settings.xml "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/artifactory/settings.xml"
+secrethub read --out-file ./test.retrievieving.settings.xml "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/artifactory/settings.xml"
+cat ./test.retrievieving.settings.xml
+
+echo "Or a single secret file, the [settings.xml] ...?"
 echo "${ARTIFACTORY_BOT_USERNAME}" | secrethub write "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/artifactory/username"
 echo "${ARTIFACTORY_BOT_SECRET}" | secrethub write "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/artifactory/password"
+echo "Or a single secret file, the [settings.xml] ...?"
+
+
 
 ```
 * creating secrethub service account with permissions to access secrets in `gravitee-lab/cicd-infra` repo :

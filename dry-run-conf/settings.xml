@@ -3,8 +3,8 @@
         <profile>
             <id>artifactory-plugin-properties</id>
             <properties>
-                <username>myusername</username>
-                <password>mypassword</password>
+                <username>ARTIFACTORY_BOT_USER_NAME</username>
+                <password>ARTIFACTORY_BOT_USER_PWD</password>
             </properties>
         </profile>
     </profiles>
