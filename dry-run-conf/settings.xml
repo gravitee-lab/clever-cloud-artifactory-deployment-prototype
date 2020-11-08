@@ -49,30 +49,37 @@
       </properties>
     </profile>
     <profile>
-	<id>oss-sonatype</id>
-	<activation>
-           <activeByDefault>false</activeByDefault>
-	</activation>
-	<repositories>
-	  <repository>
-	    <id>dry-run-artifactory-snapshots</id>
-	    <name>dry-run-artifactory-snapshots</name>
-      <url>https://gravitee.jfrog.io/artifactory</url>
-      <!-- <url>https://oss.sonatype.org/content/repositories/snapshots/</url> -->
-	    <snapshots>
-	      <enabled>true</enabled>
-	    </snapshots>
-	 </repository>
-   <repository>
-     <id>dry-run-artifactory-staging</id>
-     <name>dry-run-artifactory-staging</name>
-      <url>https://gravitee.jfrog.io/artifactory</url>
-      <!-- <url>https://oss.sonatype.org/content/repositories/snapshots/</url> -->
-     <snapshots>
-       <enabled>true</enabled>
-     </snapshots>
-  </repository>
-	</repositories>
+    	<id>dry-run</id>
+      <properties>
+        <altSnapshotDeploymentRepository>snapshots::default::https://gravitee.jfrog.io/artifactory/snapshots</altSnapshotDeploymentRepository>
+        <altReleaseDeploymentRepository>releases::default::https://gravitee.jfrog.io/artifactory/releases</altReleaseDeploymentRepository>
+      </properties>
+    	<activation>
+               <activeByDefault>true</activeByDefault>
+    	</activation>
+    	<repositories>
+    	  <repository>
+    	    <id>dry-run-artifactory-snapshots</id>
+    	    <name>dry-run-artifactory-snapshots</name>
+          <url>https://gravitee.jfrog.io/artifactory</url>
+          <!-- <url>https://oss.sonatype.org/content/repositories/snapshots/</url> -->
+    	    <snapshots>
+    	      <enabled>true</enabled>
+    	    </snapshots>
+    	 </repository>
+       <repository>
+         <id>dry-run-artifactory-staging</id>
+         <name>dry-run-artifactory-staging</name>
+          <url>https://gravitee.jfrog.io/artifactory</url>
+          <!-- <url>https://oss.sonatype.org/content/repositories/snapshots/</url> -->
+         <snapshots>
+           <enabled>true</enabled>
+         </snapshots>
+      </repository>
+    	</repositories>
     </profile>
   </profiles>
+  <activeProfiles>
+    <activeProfile>dry-run</activeProfile>
+  </activeProfiles>
 </settings>
