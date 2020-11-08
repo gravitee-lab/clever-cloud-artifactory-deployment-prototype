@@ -41,7 +41,8 @@ jobs:
                     export MVN_DOCKER_IMAGE="maven:${DESIRED_MAVEN_VERSION}-openjdk-16"
                     #
                     # see https://github.com/jfrog/project-examples/tree/master/artifactory-maven-plugin-example
-                    secrethub read gravitee-lab/cicd-infra/dev/jfrog/username
+                    export SECRETHUB_ORG="gravitee-lab"
+                    export SECRETHUB_REPO="cicd"
                     export ARTIFACTORY_BOT_USER_NAME=$(secrethub read "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/user-name")
                     export ARTIFACTORY_BOT_USER_PWD=$(secrethub read "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/user-pwd")
                     export JFROG_BUILD_NUMBER=${CIRCLE_SHA1}
