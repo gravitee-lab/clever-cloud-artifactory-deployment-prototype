@@ -42,12 +42,12 @@ jobs:
                     #
                     # see https://github.com/jfrog/project-examples/tree/master/artifactory-maven-plugin-example
                     secrethub read gravitee-lab/cicd-infra/dev/jfrog/username
-                    export JFROG_USERNAME=$(secrethub read gravitee-lab/cicd-infra/dev/jfrog/username)
-                    export JFROG_SECRET=$(secrethub read gravitee-lab/cicd-infra/dev/jfrog/password)
+                    export ARTIFACTORY_BOT_USER_NAME=$(secrethub read "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/user-name")
+                    export ARTIFACTORY_BOT_USER_PWD=$(secrethub read "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/user-pwd")
                     export JFROG_BUILD_NUMBER=${CIRCLE_SHA1}
                     echo "JFROG_USERNAME=[${JFROG_USERNAME}]"
                     # echo "JFROG_SECRET=[${JFROG_SECRET}]"
-                    export MAVEN_COMMAND="mvn -T 4 deploy -Dgio.username=${JFROG_USERNAME} -Dgio.password=${JFROG_SECRET} -Dbuildnumber=${JFROG_BUILD_NUMBER} -DskipTests"
+                    export MAVEN_COMMAND="mvn -T 4 deploy -Dgio.username=${ARTIFACTORY_BOT_USER_NAME} -Dgio.password=${ARTIFACTORY_BOT_USER_PWD} -Dbuildnumber=${JFROG_BUILD_NUMBER} -DskipTests"
                     echo "MAVEN_COMMAND=[${MAVEN_COMMAND}]"
                     docker run --name mvndeploy -it --rm -v "$PWD/gio-maven-project":/usr/src/mymaven -v "$HOME/.m2":/root/.m2 -w /usr/src/mymaven ${MVN_DOCKER_IMAGE} ${MAVEN_COMMAND}
 workflows:

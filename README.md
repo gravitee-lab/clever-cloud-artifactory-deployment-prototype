@@ -87,11 +87,10 @@ export SECRETHUB_REPO="cicd"
 secrethub org init "${SECRETHUB_ORG}"
 secrethub repo init "${SECRETHUB_ORG}/${SECRETHUB_REPO}"
 
-
 # --- #
 # for the DEV CI CD WorkFlow of
 # the Gravitee CI CD Orchestrator
-secrethub mkdir --parents "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/artifactory/"
+secrethub mkdir --parents "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/"
 
 # --- #
 # write quay secrets for the DEV CI CD WorkFlow of
@@ -99,11 +98,22 @@ secrethub mkdir --parents "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/
 export ARTIFACTORY_BOT_USER_NAME="cicd_bot"
 export ARTIFACTORY_BOT_USER_PWD="inyourdreams;)"
 
+
+
+
+echo "${ARTIFACTORY_BOT_USER_NAME}" | secrethub write "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/user-name"
+echo "${ARTIFACTORY_BOT_USER_PWD}" | secrethub write "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/user-pwd"
+
+secrethub read "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/user-name"
+secrethub read "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/user-pwd"
+
+
+
 sed -i "s#ARTIFACTORY_BOT_USER_NAME#${ARTIFACTORY_BOT_USER_NAME}#g" ./dry-run-conf/settings.xml
 sed -i "s#ARTIFACTORY_BOT_USER_PWD#${ARTIFACTORY_BOT_USER_PWD}#g" ./dry-run-conf/settings.xml
 
-secrethub write --in-file ./dry-run-conf/settings.xml "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/artifactory/settings.xml"
-secrethub read --out-file ./test.retrievieving.settings.xml "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/artifactory/settings.xml"
+secrethub write --in-file ./dry-run-conf/settings.xml "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/settings.xml"
+secrethub read --out-file ./test.retrievieving.settings.xml "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/settings.xml"
 cat ./test.retrievieving.settings.xml
 
 echo "Or a single secret file, the [settings.xml] ...?"
