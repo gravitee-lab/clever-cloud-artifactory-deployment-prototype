@@ -50,7 +50,7 @@ jobs:
                     # echo "JFROG_SECRET=[${JFROG_SECRET}]"
                     export MAVEN_COMMAND="mvn -s ./settings.xml -X -T 4 deploy -Dgio.username=${ARTIFACTORY_BOT_USER_NAME} -Dgio.password=${ARTIFACTORY_BOT_USER_PWD} -Dbuildnumber=${JFROG_BUILD_NUMBER} -DskipTests -DrepositoryId=dry-run-artifactory-snapshots -Durl=https://gravitee.jfrog.io/artifactory "
                     echo "MAVEN_COMMAND=[${MAVEN_COMMAND}]"
-                    ls -allh $HOME/.m2
+                    ls -allh $HOME/.m2/repository | gravitee-common
                     exit 1
                     docker run --name mvndeploy -it --rm -v "$PWD/gio-maven-project":/usr/src/mymaven -v "$HOME/.m2":/root/.m2 -w /usr/src/mymaven ${MVN_DOCKER_IMAGE} ${MAVEN_COMMAND}
 workflows:
