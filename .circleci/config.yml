@@ -52,7 +52,7 @@ jobs:
                     docker run --name mvndeploy -it --rm -v "$PWD/gio-maven-project":/usr/src/mymaven -v "$HOME/.m2":/root/.m2 -w /usr/src/mymaven ${MVN_DOCKER_IMAGE} ${MAVEN_COMMAND}
 workflows:
   version: 2.1
-  weekly_guard_shift:
+  maven_deploy:
     # triggers:
       # - schedule:
           # Every sunday at midnight UTC
