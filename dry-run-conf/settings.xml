@@ -25,12 +25,12 @@
   </proxies>
   <servers>
     <server>
-      <id>sonatype-nexus-snapshots</id>
+      <id>dry-run-artifactory-snapshots</id>
       <username>gio.username</username>
       <password>gio.password</password>
     </server>
     <server>
-      <id>sonatype-nexus-staging</id>
+      <id>dry-run-artifactory-staging</id>
       <username>gio.username</username>
       <password>gio.password</password>
     </server>
@@ -55,8 +55,8 @@
 	</activation>
 	<repositories>
 	  <repository>
-	    <id>oss-sonatype</id>
-	    <name>oss-sonatype</name>
+	    <id>dry-run-artifactory</id>
+	    <name>dry-run-artifactory</name>
       <url>https://gravitee.jfrog.io/artifactory</url>
       <!-- <url>https://oss.sonatype.org/content/repositories/snapshots/</url> -->
 	    <snapshots>
