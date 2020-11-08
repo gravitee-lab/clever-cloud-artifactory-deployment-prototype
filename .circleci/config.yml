@@ -53,19 +53,19 @@ jobs:
 workflows:
   version: 2.1
   weekly_guard_shift:
-    triggers:
-      - schedule:
+    # triggers:
+      # - schedule:
           # Every sunday at midnight UTC
           # cron: "0 0 * * *"
           # not supported by Circle CI
           # cron: "*/5 * * * *"
           # cron: '* * * * *'
           # Every hour UTC
-          cron: "0 * * * *"
-          filters:
-            branches:
-              only:
-                - master
+          # cron: "0 * * * *"
+          # filters:
+            # branches:
+              # only:
+                # - master
     jobs:
       - mvn_deploy:
           context: cicd-orchestrator
