@@ -55,6 +55,22 @@ git add --all && git commit -m "${COMMIT_MESSAGE}" && git push -u origin HEAD
 # git push -u origin --all && git push -u origin --tags
 ```
 
+## maven deploy plugin
+
+* https://maven.apache.org/guides/mini/guide-3rd-party-jars-remote.html
+
+```bash
+mvn deploy:deploy-file -DgroupId=<group-id> \
+  -DartifactId=<artifact-id> \
+  -Dversion=<version> \
+  -Dpackaging=<type-of-packaging> \
+  -Dfile=<path-to-file> \
+  -DrepositoryId=<id-to-map-on-server-section-of-settings.xml> \
+  -Durl=<url-of-the-repository-to-deploy>
+```
+
+
+
 
 ## `Cron` Config
 
