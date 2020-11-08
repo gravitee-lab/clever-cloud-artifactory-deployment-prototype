@@ -70,6 +70,9 @@ mvn deploy:deploy-file -DgroupId=<group-id> \
 ```
 
 
+* it is not possible to define the server URL with the settings.xml, see :
+  * https://stackoverflow.com/questions/3298135/how-to-specify-mavens-distributionmanagement-organisation-wide
+  * 
 
 
 ## `Cron` Config
