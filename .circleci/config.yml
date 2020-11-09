@@ -21,6 +21,7 @@ jobs:
           name: "Redefine Gravitee Parent POM in clevercloud referential"
           command: |
                     git clone https://github.com/gravitee-lab/gravitee-parent ./temp-parent-pom-wrkspace/
+                    cp $PWD/dry-run-conf/settings.xml $PWD/temp-parent-pom-wrkspace/
                     cd ./temp-parent-pom-wrkspace/
                     git checkout 17.x
                     echo "# --------------------------------------------------------"
