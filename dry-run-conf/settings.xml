@@ -31,4 +31,7 @@
       <password>${gio.password}</password>
     </server>
   </servers>
+  <activeProfiles>
+    <activeProfile>gravitee-dry-run-release</activeProfile>
+  </activeProfiles>
 </settings>
