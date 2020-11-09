@@ -114,7 +114,7 @@ secrethub mkdir --parents "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/
 # --- #
 # write quay secrets for the DEV CI CD WorkFlow of
 # the Gravitee CI CD Orchestrator
-export ARTIFACTORY_BOT_USER_NAME="cicd_bot"
+export ARTIFACTORY_BOT_USER_NAME="graviteebot"
 export ARTIFACTORY_BOT_USER_PWD="inyourdreams;)"
 
 
