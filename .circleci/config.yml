@@ -225,7 +225,7 @@ jobs:
                       if [ "${DRY_RUN}" == "0" ]; then
                         # --->>> NO IT IS NOT A DRY RUN
                         echo "# --->>> NO IT IS NOT A DRY RUN"
-                        export MVN_COMMAND="mvn -B -U -P gravitee-release clean deploy"
+                        export MVN_COMMAND="mvn -B -U -P gravitee-dry-run-release clean deploy"
                         echo "${MVN_COMMAND}" > ./.noheaders/mvn.script4.sh
                         echo "export MVN_EXIT_CODE=\$?" | tee -a ./.noheaders/mvn.script4.sh
                         echo "echo \"The exit code of the [${MVN_COMMAND}] maven command is [\${MVN_EXIT_CODE}] \"" | tee -a ./.noheaders/mvn.script4.sh
