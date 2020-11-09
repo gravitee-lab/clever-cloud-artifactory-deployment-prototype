@@ -117,30 +117,25 @@ secrethub mkdir --parents "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/
 export ARTIFACTORY_BOT_USER_NAME="graviteebot"
 export ARTIFACTORY_BOT_USER_PWD="inyourdreams;)"
 
-
-
-
 echo "${ARTIFACTORY_BOT_USER_NAME}" | secrethub write "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/user-name"
 echo "${ARTIFACTORY_BOT_USER_PWD}" | secrethub write "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/user-pwd"
 
-secrethub read "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/user-name"
-secrethub read "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/user-pwd"
+# From the latest secrets, create the secret settings.xml file
+export ARTIFACTORY_BOT_USER_NAME=$(secrethub read "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/user-name")
+export ARTIFACTORY_BOT_USER_PWD=$(secrethub read "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/user-pwd")
 
+cp ./dry-run-conf/settings.template.xml ./dry-run-conf/.secret.settings.xml
+sed -i "s#ARTIFACTORY_BOT_USER_NAME#${ARTIFACTORY_BOT_USER_NAME}#g" ./dry-run-conf/.secret.settings.xml
+sed -i "s#ARTIFACTORY_BOT_USER_PWD#${ARTIFACTORY_BOT_USER_PWD}#g" ./dry-run-conf/.secret.settings.xml
 
-
-sed -i "s#ARTIFACTORY_BOT_USER_NAME#${ARTIFACTORY_BOT_USER_NAME}#g" ./dry-run-conf/settings.xml
-sed -i "s#ARTIFACTORY_BOT_USER_PWD#${ARTIFACTORY_BOT_USER_PWD}#g" ./dry-run-conf/settings.xml
-
-secrethub write --in-file ./dry-run-conf/settings.xml "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/settings.xml"
+secrethub write --in-file ./dry-run-conf/settings.template.xml "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/settings.xml"
 secrethub read --out-file ./test.retrievieving.settings.xml "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/settings.xml"
-cat ./test.retrievieving.settings.xml
 
-echo "Or a single secret file, the [settings.xml] ...?"
-echo "${ARTIFACTORY_BOT_USERNAME}" | secrethub write "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/artifactory/username"
-echo "${ARTIFACTORY_BOT_SECRET}" | secrethub write "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/artifactory/password"
-echo "Or a single secret file, the [settings.xml] ...?"
+cat ./test.retrievieving.settings.xml
+rm ./test.retrievieving.settings.xml
 
 ```
+
 * creating secrethub service account with permissions to access secrets in `gravitee-lab/cicd-infra` repo :
 
 ```bash
