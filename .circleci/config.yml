@@ -10,7 +10,7 @@ jobs:
       image: 'ubuntu-1604:201903-01'    # recommended linux image - includes Ubuntu 16.04, docker 18.09.3, docker-compose 1.23.1
       # docker_layer_caching: true    # default - false # requires a Circle CI plan that includes [Docker layer caching feature]
     environment:
-      JFROG_BUILD_NUMBER: 1524548
+      GIO_BUILD_NUMBER: 1524548
       DESIRED_MAVEN_VERSION: 3.6.3
       GUARDIAN_GIT_URI: "https://github.com/gravitee-lab/gravitee-gateway"
       GUARDIAN_VERSION: 3.1.1
@@ -35,7 +35,7 @@ jobs:
                     export SECRETHUB_REPO="cicd"
                     export ARTIFACTORY_BOT_USER_NAME=$(secrethub read "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/user-name")
                     export ARTIFACTORY_BOT_USER_PWD=$(secrethub read "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/user-pwd")
-                    export JFROG_BUILD_NUMBER=${CIRCLE_SHA1}
+                    export GIO_BUILD_NUMBER=${CIRCLE_SHA1}
                     echo "ARTIFACTORY_BOT_USER_NAME=[${ARTIFACTORY_BOT_USER_NAME}]"
                     # echo "ARTIFACTORY_BOT_USER_PWD=[${ARTIFACTORY_BOT_USER_PWD}]"
 
@@ -226,7 +226,8 @@ jobs:
                       if [ "${DRY_RUN}" == "0" ]; then
                         # --->>> NO IT IS NOT A DRY RUN
                         echo "# --->>> NO IT IS NOT A DRY RUN"
-                        export MVN_COMMAND="mvn -s ./settings.xml -B -U -P gravitee-dry-run-release clean deploy"
+                        #  -Dgio.username=${ARTIFACTORY_BOT_USER_NAME} -Dgio.password=${ARTIFACTORY_BOT_USER_PWD} -Dbuildnumber=${GIO_BUILD_NUMBER} -DskipTests
+                        export MVN_COMMAND="mvn -s ./settings.xml -B -U -P gravitee-dry-run-release clean deploy -Dgio.username=${ARTIFACTORY_BOT_USER_NAME} -Dgio.password=${ARTIFACTORY_BOT_USER_PWD} -Dbuildnumber=${GIO_BUILD_NUMBER}"
                         echo "${MVN_COMMAND}" > ./.noheaders/mvn.script4.sh
                         echo "export MVN_EXIT_CODE=\$?" | tee -a ./.noheaders/mvn.script4.sh
                         echo "echo \"The exit code of the [${MVN_COMMAND}] maven command is [\${MVN_EXIT_CODE}] \"" | tee -a ./.noheaders/mvn.script4.sh
@@ -242,10 +243,8 @@ jobs:
 
 
 
-
-
                     # ---- AVANT
-                    # export MAVEN_COMMAND="mvn -s ./settings.xml -X -T 4 -B -U -P gravitee-dry-run-release deploy -Dgio.username=${ARTIFACTORY_BOT_USER_NAME} -Dgio.password=${ARTIFACTORY_BOT_USER_PWD} -Dbuildnumber=${JFROG_BUILD_NUMBER} -DskipTests"
+                    # export MAVEN_COMMAND="mvn -s ./settings.xml -X -T 4 -B -U -P gravitee-dry-run-release deploy -Dgio.username=${ARTIFACTORY_BOT_USER_NAME} -Dgio.password=${ARTIFACTORY_BOT_USER_PWD} -Dbuildnumber=${GIO_BUILD_NUMBER} -DskipTests"
                     # echo "MAVEN_COMMAND=[${MAVEN_COMMAND}]"
                     # ls -allh $HOME/.m2/repository | grep gravitee-common
                     # docker run --name mvndeploy -it --rm -v "$PWD/temp-parent-pom-wrkspace":/usr/src/mymaven -v "$HOME/.m2":/root/.m2 -w /usr/src/mymaven ${MVN_DOCKER_IMAGE} ${MAVEN_COMMAND}
@@ -277,10 +276,10 @@ jobs:
                     export SECRETHUB_REPO="cicd"
                     export ARTIFACTORY_BOT_USER_NAME=$(secrethub read "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/user-name")
                     export ARTIFACTORY_BOT_USER_PWD=$(secrethub read "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/user-pwd")
-                    export JFROG_BUILD_NUMBER=${CIRCLE_SHA1}
+                    export GIO_BUILD_NUMBER=${CIRCLE_SHA1}
                     echo "JFROG_USERNAME=[${JFROG_USERNAME}]"
                     # echo "JFROG_SECRET=[${JFROG_SECRET}]"
-                    export MAVEN_COMMAND="mvn -s ./settings.xml -X -T 4 deploy -Dgio.username=${ARTIFACTORY_BOT_USER_NAME} -Dgio.password=${ARTIFACTORY_BOT_USER_PWD} -Dbuildnumber=${JFROG_BUILD_NUMBER} -DskipTests -DrepositoryId=dry-run-artifactory-snapshots -Durl=https://gravitee.jfrog.io/artifactory  -DaltDeploymentRepository=snapshots::default::https://gravitee.jfrog.io/artifactory -DaltSnapshotDeploymentRepository=snapshots::default::https://gravitee.jfrog.io/artifactory -DaltReleaseDeploymentRepository=releases::default::https://gravitee.jfrog.io/artifactory "
+                    export MAVEN_COMMAND="mvn -s ./settings.xml -X -T 4 deploy -Dgio.username=${ARTIFACTORY_BOT_USER_NAME} -Dgio.password=${ARTIFACTORY_BOT_USER_PWD} -Dbuildnumber=${GIO_BUILD_NUMBER} -DskipTests -DrepositoryId=dry-run-artifactory-snapshots -Durl=https://gravitee.jfrog.io/artifactory  -DaltDeploymentRepository=snapshots::default::https://gravitee.jfrog.io/artifactory -DaltSnapshotDeploymentRepository=snapshots::default::https://gravitee.jfrog.io/artifactory -DaltReleaseDeploymentRepository=releases::default::https://gravitee.jfrog.io/artifactory "
                     echo "MAVEN_COMMAND=[${MAVEN_COMMAND}]"
                     # ls -allh $HOME/.m2/repository | grep gravitee-common
                     docker run --name mvndeploy -it --rm -v "$PWD/gio-maven-project":/usr/src/mymaven -v "$HOME/.m2":/root/.m2 -w /usr/src/mymaven ${MVN_DOCKER_IMAGE} ${MAVEN_COMMAND}
