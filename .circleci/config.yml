@@ -229,7 +229,6 @@ jobs:
                         echo "# --->>> NO IT IS NOT A DRY RUN"
                         #  -Dgio.username=${ARTIFACTORY_BOT_USER_NAME} -Dgio.password=${ARTIFACTORY_BOT_USER_PWD} -Dbuildnumber=${GIO_BUILD_NUMBER} -DskipTests
                         export MVN_COMMAND="mvn -s ./settings.xml -B -U -P gravitee-dry-run-release clean deploy -Dbuildnumber=${GIO_BUILD_NUMBER}"
-                        echo "cat ./settings.xml" > ./.noheaders/mvn.script4.sh
                         echo "${MVN_COMMAND}" > ./.noheaders/mvn.script4.sh
                         echo "export MVN_EXIT_CODE=\$?" | tee -a ./.noheaders/mvn.script4.sh
                         echo "echo \"The exit code of the [${MVN_COMMAND}] maven command is [\${MVN_EXIT_CODE}] \"" | tee -a ./.noheaders/mvn.script4.sh
