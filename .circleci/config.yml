@@ -18,6 +18,29 @@ jobs:
       - checkout
       - secrethub/install
       - run:
+          name: "Redefine Gravitee Parent POM in clevercloud referential"
+          command: |
+                    git clone https://github.com/gravitee-lab/gravitee-parent ./temp-parent-pom-wrkspace/
+                    cd ./temp-parent-pom-wrkspace/
+                    git checkout 17.x
+                    echo "# --------------------------------------------------------"
+                    echo "Run Maven Deploy using JFrog Maven Plugin"
+                    echo "# --------------------------------------------------------"
+                    export MVN_DOCKER_IMAGE="maven:${DESIRED_MAVEN_VERSION}-openjdk-16"
+                    #
+                    # see https://github.com/jfrog/project-examples/tree/master/artifactory-maven-plugin-example
+                    export SECRETHUB_ORG="gravitee-lab"
+                    export SECRETHUB_REPO="cicd"
+                    export ARTIFACTORY_BOT_USER_NAME=$(secrethub read "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/user-name")
+                    export ARTIFACTORY_BOT_USER_PWD=$(secrethub read "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/user-pwd")
+                    export JFROG_BUILD_NUMBER=${CIRCLE_SHA1}
+                    echo "JFROG_USERNAME=[${JFROG_USERNAME}]"
+                    # echo "JFROG_SECRET=[${JFROG_SECRET}]"
+                    export MAVEN_COMMAND="mvn -X -T 4 deploy -Dgio.username=${ARTIFACTORY_BOT_USER_NAME} -Dgio.password=${ARTIFACTORY_BOT_USER_PWD} -Dbuildnumber=${JFROG_BUILD_NUMBER} -DskipTests"
+                    echo "MAVEN_COMMAND=[${MAVEN_COMMAND}]"
+                    # ls -allh $HOME/.m2/repository | grep gravitee-common
+                    docker run --name mvndeploy -it --rm -v "$PWD/gio-maven-project":/usr/src/mymaven -v "$HOME/.m2":/root/.m2 -w /usr/src/mymaven ${MVN_DOCKER_IMAGE} ${MAVEN_COMMAND}
+      - run:
           name: "Maven clean install the maven project"
           command: |
                     export MVN_DOCKER_IMAGE="maven:${DESIRED_MAVEN_VERSION}-openjdk-16 "
@@ -36,7 +59,7 @@ jobs:
                     ls -allh $PWD/gio-maven-project/settings.xml
                     cat $PWD/gio-maven-project/settings.xml
                     echo "# --------------------------------------------------------"
-                    echo "Run Maven Deploy using JFrog Maven Plugin"
+                    echo "Maven Deploy to Clever Cloud Artifactory"
                     echo "# --------------------------------------------------------"
                     export MVN_DOCKER_IMAGE="maven:${DESIRED_MAVEN_VERSION}-openjdk-16"
                     #
