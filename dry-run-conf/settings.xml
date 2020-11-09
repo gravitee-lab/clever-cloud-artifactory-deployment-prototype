@@ -16,20 +16,21 @@
     limitations under the License.
 
 -->
-<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
-          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
-  <pluginGroups>
-  </pluginGroups>
-  <proxies>
-  </proxies>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+  <pluginGroups></pluginGroups>
+  <proxies></proxies>
   <servers>
     <server>
-      <id>clever-cloud-artifactory</id>
+      <id>clever-cloud-artifactory-snapshots</id>
       <username>gio.username</username>
       <password>gio.password</password>
     </server>
-</servers>
+    <server>
+      <id>clever-cloud-artifactory-releases</id>
+      <username>gio.username</username>
+      <password>gio.password</password>
+    </server>
+  </servers>
   <activeProfiles>
     <activeProfile>gravitee-dry-run-release</activeProfile>
   </activeProfiles>

@@ -399,11 +399,11 @@
             <id>gravitee-dry-run-release</id>
             <distributionManagement>
               <snapshotRepository>
-                <id>clever-cloud-artifactory</id>
+                <id>clever-cloud-artifactory-snapshots</id>
                 <url>http://odbxikk7vo-artifactory.services.clever-cloud.com/dry-run-snapshots/</url>
               </snapshotRepository>
               <repository>
-                <id>clever-cloud-artifactory</id>
+                <id>clever-cloud-artifactory-releases</id>
                 <url>http://odbxikk7vo-artifactory.services.clever-cloud.com/dry-run-releases/</url>
               </repository>
             </distributionManagement>
