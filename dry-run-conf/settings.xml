@@ -22,13 +22,13 @@
   <servers>
     <server>
       <id>clever-cloud-artifactory-snapshots</id>
-      <username>gio.username</username>
-      <password>gio.password</password>
+      <username>${gio.username}</username>
+      <password>${gio.password}</password>
     </server>
     <server>
       <id>clever-cloud-artifactory-releases</id>
-      <username>gio.username</username>
-      <password>gio.password</password>
+      <username>${gio.username}</username>
+      <password>${gio.password}</password>
     </server>
   </servers>
   <activeProfiles>
