@@ -25,61 +25,12 @@
   </proxies>
   <servers>
     <server>
-      <id>dry-run-artifactory-snapshots</id>
-      <username>gio.username</username>
-      <password>gio.password</password>
-    </server>
-    <server>
-      <id>dry-run-artifactory-staging</id>
+      <id>clever-cloud-artifactory</id>
       <username>gio.username</username>
       <password>gio.password</password>
     </server>
 </servers>
-  <mirrors>
-  </mirrors>
-  <profiles>
-     <profile>
-      <id>gpg</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <properties>
-        <gpg.executable>gpg</gpg.executable>
-          <gpg.passphrase><![CDATA[xxxxxxxxxxxxxxxxxx]]></gpg.passphrase>
-      </properties>
-    </profile>
-    <profile>
-    	<id>dry-run</id>
-      <properties>
-        <altSnapshotDeploymentRepository>snapshots::default::https://gravitee.jfrog.io/artifactory/snapshots</altSnapshotDeploymentRepository>
-        <altReleaseDeploymentRepository>releases::default::https://gravitee.jfrog.io/artifactory/releases</altReleaseDeploymentRepository>
-      </properties>
-    	<activation>
-               <activeByDefault>true</activeByDefault>
-    	</activation>
-    	<repositories>
-    	  <repository>
-    	    <id>dry-run-artifactory-snapshots</id>
-    	    <name>dry-run-artifactory-snapshots</name>
-          <url>https://gravitee.jfrog.io/artifactory</url>
-          <!-- <url>https://oss.sonatype.org/content/repositories/snapshots/</url> -->
-    	    <snapshots>
-    	      <enabled>true</enabled>
-    	    </snapshots>
-    	 </repository>
-       <repository>
-         <id>dry-run-artifactory-staging</id>
-         <name>dry-run-artifactory-staging</name>
-          <url>https://gravitee.jfrog.io/artifactory</url>
-          <!-- <url>https://oss.sonatype.org/content/repositories/snapshots/</url> -->
-         <snapshots>
-           <enabled>true</enabled>
-         </snapshots>
-      </repository>
-    	</repositories>
-    </profile>
-  </profiles>
   <activeProfiles>
-    <activeProfile>dry-run</activeProfile>
+    <activeProfile>gravitee-dry-run-release</activeProfile>
   </activeProfiles>
 </settings>
