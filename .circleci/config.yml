@@ -118,38 +118,38 @@ jobs:
                     # To do that, we need the version of the maven project. That's a few commands to run. SO we need to run that as a script.
                     # --> So we create a shell script with the required commands, and then run the script with the [runMavenShellScript] function
                     # --> Note that Circle CI Orbs file inclusion works with only Onefile, that's why we HAVE to generate it "on the fly"
-                    if [ -f ./.circleci/mvn.script.sh ]; then
-                      rm ./.circleci/mvn.script.sh
+                    if [ -f ./mvn.script.sh ]; then
+                      rm ./mvn.script.sh
                     fi;
                     # --- model is [mvn_release_trim_snapshot.sh]
                     # 1./ Ok,so first, need to pick up the maven project version from [pom.xml], using the maven exec plugin
-                    echo "export MVN_PRJ_VERSION=\$(mvn -Dexec.executable='echo' -Dexec.args='\${project.version}' --non-recursive exec:exec -q; echo \"\$?\" > maven.exit.code)" | tee -a ./.circleci/mvn.script.sh
+                    echo "export MVN_PRJ_VERSION=\$(mvn -Dexec.executable='echo' -Dexec.args='\${project.version}' --non-recursive exec:exec -q; echo \"\$?\" > maven.exit.code)" | tee -a ./mvn.script.sh
                     export MVN_COMMAND="mvn -Dexec.executable='echo' -Dexec.args='\\\${project.version}' --non-recursive exec:exec -q"
-                    echo "export MVN_EXIT_CODE=\$(cat maven.exit.code)" | tee -a ./.circleci/mvn.script.sh
-                    echo "echo \"[\$0] The exit code of the [${MVN_COMMAND}] maven command is [\${MVN_EXIT_CODE}] \"" | tee -a ./.circleci/mvn.script.sh
-                    echo "if ! [ \"\${MVN_EXIT_CODE}\" == \"0\" ]; then" | tee -a ./.circleci/mvn.script.sh
-                    echo "  echo \"[\$0] The exit code of the [${MVN_COMMAND}] maven command is [\${MVN_EXIT_CODE}], so not zero \"" | tee -a ./.circleci/mvn.script.sh
-                    echo "  rm maven.exit.code" | tee -a ./.circleci/mvn.script.sh
-                    echo "  exit \${MVN_EXIT_CODE}" | tee -a ./.circleci/mvn.script.sh
-                    echo "fi;" | tee -a ./.circleci/mvn.script.sh
-                    echo "rm maven.exit.code" | tee -a ./.circleci/mvn.script.sh
+                    echo "export MVN_EXIT_CODE=\$(cat maven.exit.code)" | tee -a ./mvn.script.sh
+                    echo "echo \"[\$0] The exit code of the [${MVN_COMMAND}] maven command is [\${MVN_EXIT_CODE}] \"" | tee -a ./mvn.script.sh
+                    echo "if ! [ \"\${MVN_EXIT_CODE}\" == \"0\" ]; then" | tee -a ./mvn.script.sh
+                    echo "  echo \"[\$0] The exit code of the [${MVN_COMMAND}] maven command is [\${MVN_EXIT_CODE}], so not zero \"" | tee -a ./mvn.script.sh
+                    echo "  rm maven.exit.code" | tee -a ./mvn.script.sh
+                    echo "  exit \${MVN_EXIT_CODE}" | tee -a ./mvn.script.sh
+                    echo "fi;" | tee -a ./mvn.script.sh
+                    echo "rm maven.exit.code" | tee -a ./mvn.script.sh
 
-                    echo "echo \"Resolved Maven Project version : [\${MVN_PRJ_VERSION}]\"" | tee -a ./.circleci/mvn.script.sh
+                    echo "echo \"Resolved Maven Project version : [\${MVN_PRJ_VERSION}]\"" | tee -a ./mvn.script.sh
                     # But MVN_PRJ_VERSION has the '-SNAPSHOT' suffix, we need to strip it off, to pass that exact verion to maven version plugin
-                    echo "export MVN_PRJ_VERSION=\$(echo \"\${MVN_PRJ_VERSION}\" | awk -F '-SNAPSHOT' '{print \$1}')" | tee -a ./.circleci/mvn.script.sh
-                    echo "echo \"trimmed [-SNAPSHOT] suffix from Maven Project version : [\${MVN_PRJ_VERSION}]\"" | tee -a ./.circleci/mvn.script.sh
+                    echo "export MVN_PRJ_VERSION=\$(echo \"\${MVN_PRJ_VERSION}\" | awk -F '-SNAPSHOT' '{print \$1}')" | tee -a ./mvn.script.sh
+                    echo "echo \"trimmed [-SNAPSHOT] suffix from Maven Project version : [\${MVN_PRJ_VERSION}]\"" | tee -a ./mvn.script.sh
                     # So we can retrieve the project version out of container
-                    echo "echo \"\${MVN_PRJ_VERSION}\" > ./.circleci/gio.maven.project.version" | tee -a ./.circleci/mvn.script.sh
+                    echo "echo \"\${MVN_PRJ_VERSION}\" > ./.circleci/gio.maven.project.version" | tee -a ./mvn.script.sh
                     # 2./ and then we can run the [mvn -B versions:set -DnewVersion=1.3.1 -DgenerateBackupPoms=false]
                     export MVN_COMMAND="mvn -B versions:set -DnewVersion=\\\${MVN_PRJ_VERSION} -DgenerateBackupPoms=false"
-                    echo "mvn -B versions:set -DnewVersion=\${MVN_PRJ_VERSION} -DgenerateBackupPoms=false" | tee -a ./.circleci/mvn.script.sh
+                    echo "mvn -B versions:set -DnewVersion=\${MVN_PRJ_VERSION} -DgenerateBackupPoms=false" | tee -a ./mvn.script.sh
                     # 3./ Exit code
-                    echo "export MVN_EXIT_CODE=\$?" | tee -a ./.circleci/mvn.script.sh
-                    echo "echo \"[\$0] The exit code of the [${MVN_COMMAND}] maven command is [\${MVN_EXIT_CODE}] \"" | tee -a ./.circleci/mvn.script.sh
-                    echo "exit \${MVN_EXIT_CODE}" | tee -a ./.circleci/mvn.script.sh
+                    echo "export MVN_EXIT_CODE=\$?" | tee -a ./mvn.script.sh
+                    echo "echo \"[\$0] The exit code of the [${MVN_COMMAND}] maven command is [\${MVN_EXIT_CODE}] \"" | tee -a ./mvn.script.sh
+                    echo "exit \${MVN_EXIT_CODE}" | tee -a ./mvn.script.sh
                     # finally let's make it executable, before passing it to the [runMavenShellScript] function
-                    chmod +x ./.circleci/mvn.script.sh
-                    runMavenShellScript ./.circleci/mvn.script.sh
+                    chmod +x ./mvn.script.sh
+                    runMavenShellScript ./mvn.script.sh
 
 
 
@@ -164,21 +164,21 @@ jobs:
                     # ---
                     # the command to update dependencies
                     export MVN_UPDATER_CMD="mvn -B -U versions:update-properties -Dincludes=io.gravitee.*:* -DallowMajorUpdates=false -DallowMinorUpdates=false -DallowIncrementalUpdates=true -DgenerateBackupPoms=false"
-                    echo "${MVN_UPDATER_CMD}" > ./.circleci/mvn.script2.sh
-                    echo "export MVN_EXIT_CODE=\$?" | tee -a ./.circleci/mvn.script2.sh
-                    echo "echo \"[\$0] The exit code of the [${MVN_UPDATER_CMD}] maven command is [\${MVN_EXIT_CODE}] \"" | tee -a ./.circleci/mvn.script2.sh
-                    echo "exit \${MVN_EXIT_CODE}" | tee -a ./.circleci/mvn.script2.sh
-                    chmod +x ./.circleci/mvn.script2.sh
+                    echo "${MVN_UPDATER_CMD}" > ./mvn.script2.sh
+                    echo "export MVN_EXIT_CODE=\$?" | tee -a ./mvn.script2.sh
+                    echo "echo \"[\$0] The exit code of the [${MVN_UPDATER_CMD}] maven command is [\${MVN_EXIT_CODE}] \"" | tee -a ./mvn.script2.sh
+                    echo "exit \${MVN_EXIT_CODE}" | tee -a ./mvn.script2.sh
+                    chmod +x ./mvn.script2.sh
 
                     # ---
                     # If The maven project version, ends with '.0', then
                     # this is a maintainance release
                     if [ "${MVN_PRJ_VERSION_PATCH}" == "0" ]; then
                       # yes it is a maintainance version
-                      runMavenShellScript ./.circleci/mvn.script2.sh
+                      runMavenShellScript ./mvn.script2.sh
                     else
                       # no it is not a maintainance version
-                      runMavenShellScript ./.circleci/mvn.script2.sh
+                      runMavenShellScript ./mvn.script2.sh
                     fi;
 
 
@@ -202,34 +202,34 @@ jobs:
                       echo "# --->>> YES IT IS A DRY RUN"
                       echo "Release Dry Mode is ON"
                       export MVN_COMMAND="mvn -B -U clean install"
-                      echo "${MVN_COMMAND}" | tee ./.circleci/mvn.script3.sh
+                      echo "${MVN_COMMAND}" | tee ./mvn.script3.sh
 
-                      echo "export MVN_EXIT_CODE=\$?" | tee -a ./.circleci/mvn.script3.sh
-                      echo "echo \"[\$0] The exit code of the previous maven command is [\${MVN_EXIT_CODE}] \"" | tee -a ./.circleci/mvn.script3.sh
-                      echo "if ! [ \"\${MVN_EXIT_CODE}\" == \"0\" ]; then" | tee -a ./.circleci/mvn.script3.sh
-                      echo "  echo \"[\$0] The exit code of the [${MVN_COMMAND}] maven command is [\${MVN_EXIT_CODE}], so not zero \"" | tee -a ./.circleci/mvn.script3.sh
-                      echo "  exit \${MVN_EXIT_CODE}" | tee -a ./.circleci/mvn.script3.sh
-                      echo "fi;" | tee -a ./.circleci/mvn.script3.sh
+                      echo "export MVN_EXIT_CODE=\$?" | tee -a ./mvn.script3.sh
+                      echo "echo \"[\$0] The exit code of the previous maven command is [\${MVN_EXIT_CODE}] \"" | tee -a ./mvn.script3.sh
+                      echo "if ! [ \"\${MVN_EXIT_CODE}\" == \"0\" ]; then" | tee -a ./mvn.script3.sh
+                      echo "  echo \"[\$0] The exit code of the [${MVN_COMMAND}] maven command is [\${MVN_EXIT_CODE}], so not zero \"" | tee -a ./mvn.script3.sh
+                      echo "  exit \${MVN_EXIT_CODE}" | tee -a ./mvn.script3.sh
+                      echo "fi;" | tee -a ./mvn.script3.sh
 
                       export MVN_COMMAND="mvn enforcer:enforce"
-                      echo "${MVN_COMMAND}" | tee -a ./.circleci/mvn.script3.sh
-                      echo "export MVN_EXIT_CODE=\$?" | tee -a ./.circleci/mvn.script3.sh
-                      echo "echo \"[\$0] The exit code of the [${MVN_COMMAND}] maven command is [\${MVN_EXIT_CODE}] \"" | tee -a ./.circleci/mvn.script3.sh
-                      echo "exit \${MVN_EXIT_CODE}" | tee -a ./.circleci/mvn.script3.sh
-                      chmod +x ./.circleci/mvn.script3.sh
-                      runMavenShellScript ./.circleci/mvn.script3.sh
+                      echo "${MVN_COMMAND}" | tee -a ./mvn.script3.sh
+                      echo "export MVN_EXIT_CODE=\$?" | tee -a ./mvn.script3.sh
+                      echo "echo \"[\$0] The exit code of the [${MVN_COMMAND}] maven command is [\${MVN_EXIT_CODE}] \"" | tee -a ./mvn.script3.sh
+                      echo "exit \${MVN_EXIT_CODE}" | tee -a ./mvn.script3.sh
+                      chmod +x ./mvn.script3.sh
+                      runMavenShellScript ./mvn.script3.sh
 
                     else
                       if [ "${DRY_RUN}" == "0" ]; then
                         # --->>> NO IT IS NOT A DRY RUN
                         echo "# --->>> NO IT IS NOT A DRY RUN"
                         export MVN_COMMAND="mvn -B -U -P gravitee-release clean deploy"
-                        echo "${MVN_COMMAND}" > ./.circleci/mvn.script4.sh
-                        echo "export MVN_EXIT_CODE=\$?" | tee -a ./.circleci/mvn.script4.sh
-                        echo "echo \"The exit code of the [${MVN_COMMAND}] maven command is [\${MVN_EXIT_CODE}] \"" | tee -a ./.circleci/mvn.script4.sh
-                        echo "exit \${MVN_EXIT_CODE}" | tee -a ./.circleci/mvn.script4.sh
-                        chmod +x ./.circleci/mvn.script4.sh
-                        runMavenShellScript ./.circleci/mvn.script4.sh
+                        echo "${MVN_COMMAND}" > ./mvn.script4.sh
+                        echo "export MVN_EXIT_CODE=\$?" | tee -a ./mvn.script4.sh
+                        echo "echo \"The exit code of the [${MVN_COMMAND}] maven command is [\${MVN_EXIT_CODE}] \"" | tee -a ./mvn.script4.sh
+                        echo "exit \${MVN_EXIT_CODE}" | tee -a ./mvn.script4.sh
+                        chmod +x ./mvn.script4.sh
+                        runMavenShellScript ./mvn.script4.sh
 
                       else
                         echo "Error : received [DRY_RUN=[${DRY_RUN}]] value, while Circle CI should have transmitted either ZERO for false, or ONE, for false"
