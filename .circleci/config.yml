@@ -125,6 +125,7 @@ jobs:
                     fi;
                     # --- model is [mvn_release_trim_snapshot.sh]
                     # 1./ Ok,so first, need to pick up the maven project version from [pom.xml], using the maven exec plugin
+                    cat ./pom.xml
                     echo "export MVN_PRJ_VERSION=\$(mvn -Dexec.executable='echo' -Dexec.args='\${project.version}' --non-recursive exec:exec -q; echo \"\$?\" > maven.exit.code)" | tee -a ./.noheaders/mvn.script.sh
                     export MVN_COMMAND="mvn -Dexec.executable='echo' -Dexec.args='\\\${project.version}' --non-recursive exec:exec -q"
                     echo "export MVN_EXIT_CODE=\$(cat maven.exit.code)" | tee -a ./.noheaders/mvn.script.sh
