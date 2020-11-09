@@ -21,11 +21,12 @@ jobs:
           name: "Redefine Gravitee Parent POM in clevercloud referential"
           command: |
                     git clone https://github.com/gravitee-lab/gravitee-parent ./temp-parent-pom-wrkspace/
-                    cp $PWD/dry-run-conf/settings.xml $PWD/temp-parent-pom-wrkspace/
+                    cp ./dry-run-conf/settings.xml ./temp-parent-pom-wrkspace/
                     cd ./temp-parent-pom-wrkspace/
                     git checkout 17.x
+                    cd ../
                     echo "# --------------------------------------------------------"
-                    echo "Run Maven Deploy using JFrog Maven Plugin"
+                    echo "Run Maven Deploy to re-define Gravitee Parent POM in clevercloud referential"
                     echo "# --------------------------------------------------------"
                     export MVN_DOCKER_IMAGE="maven:${DESIRED_MAVEN_VERSION}-openjdk-16"
                     #
@@ -40,7 +41,7 @@ jobs:
                     export MAVEN_COMMAND="mvn -s ./settings.xml -X -T 4 -P gravitee-dry-run-release deploy -Dgio.username=${ARTIFACTORY_BOT_USER_NAME} -Dgio.password=${ARTIFACTORY_BOT_USER_PWD} -Dbuildnumber=${JFROG_BUILD_NUMBER} -DskipTests"
                     echo "MAVEN_COMMAND=[${MAVEN_COMMAND}]"
                     # ls -allh $HOME/.m2/repository | grep gravitee-common
-                    docker run --name mvndeploy -it --rm -v "$PWD/.":/usr/src/mymaven -v "$HOME/.m2":/root/.m2 -w /usr/src/mymaven ${MVN_DOCKER_IMAGE} ${MAVEN_COMMAND}
+                    docker run --name mvndeploy -it --rm -v "$PWD/temp-parent-pom-wrkspace":/usr/src/mymaven -v "$HOME/.m2":/root/.m2 -w /usr/src/mymaven ${MVN_DOCKER_IMAGE} ${MAVEN_COMMAND}
       - run:
           name: "Maven clean install the maven project"
           command: |
