@@ -22,9 +22,14 @@ jobs:
           command: |
                     git clone https://github.com/gravitee-lab/gravitee-parent ./temp-parent-pom-wrkspace/
                     # cp ./dry-run-conf/settings.xml ./temp-parent-pom-wrkspace/
-                    secrethub read --out-file ./temp-parent-pom-wrkspace/settings.xml "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/settings.xml"
                     cd ./temp-parent-pom-wrkspace/
                     git checkout 17.x
+                    secrethub read --out-file ./temp-parent-pom-wrkspace/settings.xml "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/settings.xml"
+                    echo "# --------------------------------------------------------"
+                    echo " Content of the SETTINGS.XML"
+                    echo "# --------------------------------------------------------"
+                    cat settings.xml
+                    echo "# --------------------------------------------------------"
                     # git checkout ALT_DEPLOYMENT
                     # cd ../
                     echo "# --------------------------------------------------------"
@@ -125,7 +130,7 @@ jobs:
                     if [ -f ./.noheaders/mvn.script.sh ]; then
                       rm ./.noheaders/mvn.script.sh
                     fi;
-                    
+
                     # --- model is [mvn_release_trim_snapshot.sh]
                     # 1./ Ok,so first, need to pick up the maven project version from [pom.xml], using the maven exec plugin
                     echo "export MVN_PRJ_VERSION=\$(mvn -Dexec.executable='echo' -Dexec.args='\${project.version}' --non-recursive exec:exec -q; echo \"\$?\" > maven.exit.code)" | tee -a ./.noheaders/mvn.script.sh
@@ -154,7 +159,11 @@ jobs:
                     echo "exit \${MVN_EXIT_CODE}" | tee -a ./.noheaders/mvn.script.sh
                     # finally let's make it executable, before passing it to the [runMavenShellScript] function
                     chmod +x ./.noheaders/mvn.script.sh
+                    echo "# --------------------------------------------------------"
+                    echo " Content of the POM.XML"
+                    echo "# --------------------------------------------------------"
                     cat ./pom.xml
+                    echo "# --------------------------------------------------------"
                     runMavenShellScript ./.noheaders/mvn.script.sh
 
 
