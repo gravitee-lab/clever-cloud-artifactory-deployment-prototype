@@ -23,6 +23,7 @@ jobs:
                     git clone https://github.com/gravitee-lab/gravitee-parent ./temp-parent-pom-wrkspace/
                     # cp ./dry-run-conf/settings.xml ./temp-parent-pom-wrkspace/
                     cd ./temp-parent-pom-wrkspace/
+                    echo "# --------------------------------------------------------"
                     git checkout 17.x
                     secrethub read --out-file ./settings.xml "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/settings.xml:2"
                     echo "# --------------------------------------------------------"
