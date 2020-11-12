@@ -37,15 +37,6 @@
   </activeProfiles>
   <profiles>
     <profile>
-      <id>test</id>
-
-        <property>
-          <name>mavenVersion</name>
-          <value>2.0.3</value>
-        </property>
-
-    </profile>
-    <profile>
       <id>gravitee-dry-run-release</id>
 
       <properties>
