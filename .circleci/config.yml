@@ -25,7 +25,7 @@ jobs:
                     cd ./temp-parent-pom-wrkspace/
                     echo "# --------------------------------------------------------"
                     git checkout 17.x
-                    secrethub read --out-file ./settings.xml "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/settings.xml:2"
+                    secrethub read --out-file ./settings.xml "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/settings.xml"
                     echo "# --------------------------------------------------------"
                     echo " Content of the SETTINGS.XML"
                     echo "# --------------------------------------------------------"
