@@ -124,7 +124,8 @@ echo "${ARTIFACTORY_BOT_USER_PWD}" | secrethub write "${SECRETHUB_ORG}/${SECRETH
 export ARTIFACTORY_BOT_USER_NAME=$(secrethub read "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/user-name")
 export ARTIFACTORY_BOT_USER_PWD=$(secrethub read "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/user-pwd")
 
-cp ./dry-run-conf/settings.template.xml ./dry-run-conf/.secret.settings.xml
+# cp ./dry-run-conf/settings.template.xml ./dry-run-conf/.secret.settings.xml
+cp ./dry-run-conf/settings.template.altdistrib.xml ./dry-run-conf/.secret.settings.xml
 sed -i "s#ARTIFACTORY_BOT_USER_NAME#${ARTIFACTORY_BOT_USER_NAME}#g" ./dry-run-conf/.secret.settings.xml
 sed -i "s#ARTIFACTORY_BOT_USER_PWD#${ARTIFACTORY_BOT_USER_PWD}#g" ./dry-run-conf/.secret.settings.xml
 

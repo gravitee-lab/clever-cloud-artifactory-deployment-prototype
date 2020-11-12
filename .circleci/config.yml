@@ -25,6 +25,7 @@ jobs:
                     secrethub read --out-file ./temp-parent-pom-wrkspace/settings.xml "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/settings.xml"
                     cd ./temp-parent-pom-wrkspace/
                     git checkout 17.x
+                    # git checkout ALT_DEPLOYMENT
                     # cd ../
                     echo "# --------------------------------------------------------"
                     echo "Run Maven Deploy to re-define Gravitee Parent POM in clevercloud referential"
