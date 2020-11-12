@@ -1,2 +1,3 @@
 # the interpolated file to create a secret file in secrethub, containing auth credentials to the dry run artifactory service
 dry-run-conf/.secret.settings.xml
+.secret.settings.xml

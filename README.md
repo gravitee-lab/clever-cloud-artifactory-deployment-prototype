@@ -137,11 +137,11 @@ export ARTIFACTORY_BOT_USER_PWD=$(secrethub read "${SECRETHUB_ORG}/${SECRETHUB_R
 export ARTIFACTORY_REPO_SNAPSHOTS_URL=$(secrethub read "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/snaphots-repo-url")
 export ARTIFACTORY_REPO_RELEASE_URL=$(secrethub read "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/release-repo-url")
 
-if [ -f ./dry-run-conf/.secret.settings.xml ]; then
-  rm ./dry-run-conf/.secret.settings.xml
+if [ -f ./.secret.settings.xml ]; then
+  rm ./.secret.settings.xml
 fi;
 
-cat <<EOF >>./dry-run-conf/.secret.settings.xml
+cat <<EOF >>./.secret.settings.xml
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
@@ -229,8 +229,8 @@ cat <<EOF >>./dry-run-conf/.secret.settings.xml
 </settings>
 EOF
 
-# secrethub write --in-file ./dry-run-conf/.secret.settings.xml "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/settings.xml"
-secrethub write --in-file ./dry-run-conf/.secret.settings.xml "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/settings.xml"
+# secrethub write --in-file ./.secret.settings.xml "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/settings.xml"
+secrethub write --in-file ./.secret.settings.xml "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/settings.xml"
 secrethub read --out-file ./test.retrievieving.settings.xml "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/settings.xml"
 
 cat ./test.retrievieving.settings.xml
