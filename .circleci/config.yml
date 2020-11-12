@@ -125,7 +125,7 @@ jobs:
                     if [ -f ./.noheaders/mvn.script.sh ]; then
                       rm ./.noheaders/mvn.script.sh
                     fi;
-                    mkir ./.noheaders
+                    mkdir ./.noheaders
                     # --- model is [mvn_release_trim_snapshot.sh]
                     # 1./ Ok,so first, need to pick up the maven project version from [pom.xml], using the maven exec plugin
                     echo "export MVN_PRJ_VERSION=\$(mvn -Dexec.executable='echo' -Dexec.args='\${project.version}' --non-recursive exec:exec -q; echo \"\$?\" > maven.exit.code)" | tee -a ./.noheaders/mvn.script.sh
