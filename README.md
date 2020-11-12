@@ -120,7 +120,10 @@ export ARTIFACTORY_BOT_USER_PWD="inyourdreams;)"
 echo "${ARTIFACTORY_BOT_USER_NAME}" | secrethub write "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/user-name"
 echo "${ARTIFACTORY_BOT_USER_PWD}" | secrethub write "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/user-pwd"
 
+
 # From the latest secrets, create the secret settings.xml file
+export SECRETHUB_ORG="gravitee-lab"
+export SECRETHUB_REPO="cicd"
 export ARTIFACTORY_BOT_USER_NAME=$(secrethub read "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/user-name")
 export ARTIFACTORY_BOT_USER_PWD=$(secrethub read "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/user-pwd")
 
@@ -129,6 +132,7 @@ cp ./dry-run-conf/settings.template.altdistrib.xml ./dry-run-conf/.secret.settin
 sed -i "s#ARTIFACTORY_BOT_USER_NAME#${ARTIFACTORY_BOT_USER_NAME}#g" ./dry-run-conf/.secret.settings.xml
 sed -i "s#ARTIFACTORY_BOT_USER_PWD#${ARTIFACTORY_BOT_USER_PWD}#g" ./dry-run-conf/.secret.settings.xml
 
+# secrethub write --in-file ./dry-run-conf/.secret.settings.xml "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/settings.xml"
 secrethub write --in-file ./dry-run-conf/.secret.settings.xml "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/settings.xml"
 secrethub read --out-file ./test.retrievieving.settings.xml "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/settings.xml"
 
