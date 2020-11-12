@@ -137,10 +137,10 @@ export ARTIFACTORY_BOT_USER_PWD=$(secrethub read "${SECRETHUB_ORG}/${SECRETHUB_R
 export ARTIFACTORY_REPO_SNAPSHOTS_URL=$(secrethub read "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/snaphots-repo-url")
 export ARTIFACTORY_REPO_RELEASE_URL=$(secrethub read "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/release-repo-url")
 
-# cp ./dry-run-conf/settings.template.xml ./dry-run-conf/.secret.settings.xml
-cp dry-run-conf/settings.template.altdistrib.final.xml ./dry-run-conf/.secret.settings.xml
-sed -i "s#ARTIFACTORY_BOT_USER_NAME#${ARTIFACTORY_BOT_USER_NAME}#g" ./dry-run-conf/.secret.settings.xml
-sed -i "s#ARTIFACTORY_BOT_USER_PWD#${ARTIFACTORY_BOT_USER_PWD}#g" ./dry-run-conf/.secret.settings.xml
+if [ -f ./dry-run-conf/.secret.settings.xml ]; then
+  rm ./dry-run-conf/.secret.settings.xml
+fi;
+
 cat <<EOF >>./dry-run-conf/.secret.settings.xml
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
