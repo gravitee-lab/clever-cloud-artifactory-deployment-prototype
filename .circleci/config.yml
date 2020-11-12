@@ -29,7 +29,7 @@ jobs:
                     echo "# --------------------------------------------------------"
                     echo " Content of the SETTINGS.XML"
                     echo "# --------------------------------------------------------"
-                    cat settings.xml
+                    # cat settings.xml
                     echo "# --------------------------------------------------------"
                     # git checkout ALT_DEPLOYMENT
                     # cd ../
@@ -39,8 +39,8 @@ jobs:
                     export MVN_DOCKER_IMAGE="maven:${DESIRED_MAVEN_VERSION}-openjdk-16"
                     #
                     # see https://github.com/jfrog/project-examples/tree/master/artifactory-maven-plugin-example
-                    export SECRETHUB_ORG="gravitee-lab"
-                    export SECRETHUB_REPO="cicd"
+                    # export SECRETHUB_ORG="gravitee-lab"
+                    # export SECRETHUB_REPO="cicd"
                     export ARTIFACTORY_BOT_USER_NAME=$(secrethub read "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/user-name")
                     export ARTIFACTORY_BOT_USER_PWD=$(secrethub read "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/user-pwd")
                     export GIO_BUILD_NUMBER=${CIRCLE_SHA1}
@@ -52,8 +52,8 @@ jobs:
                     export DRY_RUN=0
                     export DESIRED_MAVEN_VERSION=${DESIRED_MAVEN_VERSION:-'3.6.3'}
                     export MVN_DOCKER="maven:${DESIRED_MAVEN_VERSION}-openjdk-16 "
-                    export SECRETHUB_ORG=gravitee-lab
-                    export SECRETHUB_REPO=cicd
+                    # export SECRETHUB_ORG=gravitee-lab
+                    # export SECRETHUB_REPO=cicd
                     mkdir -p ./.noheaders
                     Usage() {
                       echo " Usage :  "
@@ -285,8 +285,8 @@ jobs:
                     export MVN_DOCKER_IMAGE="maven:${DESIRED_MAVEN_VERSION}-openjdk-16"
                     #
                     # see https://github.com/jfrog/project-examples/tree/master/artifactory-maven-plugin-example
-                    export SECRETHUB_ORG="gravitee-lab"
-                    export SECRETHUB_REPO="cicd"
+                    # export SECRETHUB_ORG="gravitee-lab"
+                    # export SECRETHUB_REPO="cicd"
                     export ARTIFACTORY_BOT_USER_NAME=$(secrethub read "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/user-name")
                     export ARTIFACTORY_BOT_USER_PWD=$(secrethub read "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/user-pwd")
                     export GIO_BUILD_NUMBER=${CIRCLE_SHA1}
