@@ -26,7 +26,7 @@ jobs:
           command: |
                     git clone https://github.com/gravitee-lab/gravitee-parent ./
       - secrethub/install
-      - mvn_release:
+      - gravitee/mvn_release:
           dry_run: true
           # maven_version: 3.6.3
           dry_run_mvn_profile_id: gravitee-dry-run
@@ -48,7 +48,7 @@ jobs:
                     git clone https://github.com/gravitee-lab/gravitee-parent ./
                     git checkout 3.1.x
       - secrethub/install
-      - mvn_release:
+      - gravitee/mvn_release:
           dry_run: true
           # maven_version: 3.6.3
           dry_run_mvn_profile_id: gravitee-dry-run
