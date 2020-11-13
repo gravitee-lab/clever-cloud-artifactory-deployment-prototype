@@ -3,7 +3,7 @@
 version: 2.1
 
 orbs:
-  # secrethub: secrethub/cli@1.0.0
+  secrethub: secrethub/cli@1.0.0
   gravitee: gravitee-io/gravitee@dev:1.0.2
 
 jobs:
