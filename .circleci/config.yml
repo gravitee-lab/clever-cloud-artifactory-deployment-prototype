@@ -1,10 +1,13 @@
 
 # Machine executor, set the machine key to true in .circleci/config.yml:
 version: 2.1
+
 orbs:
-  secrethub: secrethub/cli@1.0.0
+  # secrethub: secrethub/cli@1.0.0
+  gravitee: gravitee-io/gravitee@dev:1.0.2
+
 jobs:
-  mvn_deploy:
+  mvn_deploy_gravitee_parent:
     machine:
       resource_class: medium
       image: 'ubuntu-1604:201903-01'    # recommended linux image - includes Ubuntu 16.04, docker 18.09.3, docker-compose 1.23.1
@@ -15,287 +18,43 @@ jobs:
       GUARDIAN_GIT_URI: "https://github.com/gravitee-lab/gravitee-gateway"
       GUARDIAN_VERSION: 3.1.1
     steps:
-      - checkout
-      - secrethub/install
+      # I do not checkout the source code of
+      # the [clever-cloud-artifactory-deployment-prototype] git repo, but the
+      # - checkout
       - run:
           name: "Redefine Gravitee Parent POM in clevercloud referential"
           command: |
-                    git clone https://github.com/gravitee-lab/gravitee-parent ./temp-parent-pom-wrkspace/
-                    # cp ./dry-run-conf/settings.xml ./temp-parent-pom-wrkspace/
-                    cd ./temp-parent-pom-wrkspace/
-                    echo "# --------------------------------------------------------"
-                    git checkout 17.x
-                    secrethub read --out-file ./settings.xml "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/settings.xml"
-                    echo "# --------------------------------------------------------"
-                    echo " Content of the SETTINGS.XML"
-                    echo "# --------------------------------------------------------"
-                    # cat settings.xml
-                    echo "# --------------------------------------------------------"
-                    # git checkout ALT_DEPLOYMENT
-                    # cd ../
-                    echo "# --------------------------------------------------------"
-                    echo "Run Maven Deploy to re-define Gravitee Parent POM in clevercloud referential"
-                    echo "# --------------------------------------------------------"
-                    export MVN_DOCKER_IMAGE="maven:${DESIRED_MAVEN_VERSION}-openjdk-16"
-                    #
-                    # see https://github.com/jfrog/project-examples/tree/master/artifactory-maven-plugin-example
-                    # export SECRETHUB_ORG="gravitee-lab"
-                    # export SECRETHUB_REPO="cicd"
-                    export ARTIFACTORY_BOT_USER_NAME=$(secrethub read "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/user-name")
-                    export ARTIFACTORY_BOT_USER_PWD=$(secrethub read "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/user-pwd")
-                    export GIO_BUILD_NUMBER=${CIRCLE_SHA1}
-                    echo "ARTIFACTORY_BOT_USER_NAME=[${ARTIFACTORY_BOT_USER_NAME}]"
-                    # echo "ARTIFACTORY_BOT_USER_PWD=[${ARTIFACTORY_BOT_USER_PWD}]"
+                    git clone https://github.com/gravitee-lab/gravitee-parent ./
+      - secrethub/install
+      - mvn_release:
+          dry_run: true
+          # maven_version: 3.6.3
+          dry_run_mvn_profile_id: gravitee-dry-run
+          secrethub_org: gravitee-lab
+          secrethub_repo: cicd
 
-
-                    ## ------ START OF IMPORTED SCRIPT
-                    export DRY_RUN=0
-                    export DESIRED_MAVEN_VERSION=${DESIRED_MAVEN_VERSION:-'3.6.3'}
-                    export MVN_DOCKER="maven:${DESIRED_MAVEN_VERSION}-openjdk-16 "
-                    # export SECRETHUB_ORG=gravitee-lab
-                    # export SECRETHUB_REPO=cicd
-                    mkdir -p ./.noheaders
-                    Usage() {
-                      echo " Usage :  "
-                      echo " [--------------------------------------------------------------------------------] "
-                      echo " [$0] "
-                      echo " [--------------------------------------------------------------------------------] "
-                      echo " Environment Variables : "
-                      echo " [--------------------------------------------------------------------------------] "
-                      echo "  SECRETHUB_ORG (Required) The name of the Secrethub Org from which Secrets have to be fetched"
-                      echo "  SECRETHUB_REPO (Required) The name of the Secrethub Repo from which Secrets have to be fetched"
-                      echo " [--------------------------------------------------------------------------------] "
-                    }
-
-                    Info() {
-                      echo " [--------------------------------------------------------------------------------] "
-                      echo "   Running [$0] with maven version [${DESIRED_MAVEN_VERSION}] "
-                      echo "   Running [$0] in dry run Mode ? [${DRY_RUN}] "
-                      echo "   Running [$0] with Secret Hub Org name [${SECRETHUB_ORG}] "
-                      echo "   Running [$0] with Secret Hub Repo name [${SECRETHUB_REPO}] "
-                      echo " [--------------------------------------------------------------------------------] "
-                    }
-
-                    # --- --- --- --- --- --- --- #
-                    # ---   operational       --- #
-                    # ---   functions         --- #
-                    # --- --- --- --- --- --- --- #
-                    # ---
-                    #
-                    runMavenCommand () {
-                      export MAVEN_COMMAND=$1
-                      echo "[runMavenCommand] - Will Run Maven Command [${MAVEN_COMMAND}]"
-                      docker run -it --rm -v "$PWD":/usr/src/giomaven_project -v "$HOME/.m2":/root/.m2 -w /usr/src/giomaven_project ${MVN_DOCKER} ${MAVEN_COMMAND}
-                    }
-                    # ---
-                    # -  Runs a script inside the maven docker container
-                    # ---
-                    # this function takes one argument, the name of a file :
-                    # => which is a shell script to execute in the docker container
-                    # => which is expected to be located in [$PWD], to be picked up by the docker volume
-                    runMavenShellScript () {
-
-                      export MAVEN_SHELL_SCRIPT=$1
-                      echo "[runMavenShellScript] - Will Run Maven Shell Script [${MAVEN_SHELL_SCRIPT}]"
-                      # the ${MAVEN_SHELL_SCRIPT} shell script IS in the docker container, because of the docker volume to $PWD
-                      docker run -it --rm -v "$PWD":/usr/src/giomaven_project -v "$HOME/.m2":/root/.m2 -w /usr/src/giomaven_project ${MVN_DOCKER} ${MAVEN_SHELL_SCRIPT}
-                      export DOCKER_EXIT_CODE="$?"
-                      echo "[runMavenShellScript] the exit code of the [${MAVEN_SHELL_SCRIPT}] script is [${DOCKER_EXIT_CODE}] "
-                      if ! [ "${DOCKER_EXIT_CODE}" == "0" ]; then
-                        echo "[runMavenShellScript] the exit code of the [${MAVEN_SHELL_SCRIPT}] script is [${DOCKER_EXIT_CODE}], so not zero "
-                        exit ${DOCKER_EXIT_CODE}
-                      fi;
-                    }
-
-
-                    # --- --- --- --- --- --- --- #
-                    # ---   operations start  --- #
-                    # --- --- --- --- --- --- --- #
-                    # From notes at https://github.com/gravitee-io/release/issues/128#issuecomment-700120543
-                    # ---
-
-                    # Info
-
-                    # ---
-                    # This plugin will edit the [pom.xml] to resetthe maven project version.
-                    # The purpose here, is to "get rid of the [-SNAPSHOT] suffix comming
-                    # from the release.json"
-                    # ---
-                    # Example :
-                    # --> the [pom.xml] has version [1.3.1-SNAPSHOT], so we run :
-                    # mvn -B versions:set -DnewVersion=1.3.1 -DgenerateBackupPoms=false
-                    # ---
-                    # To do that, we need the version of the maven project. That's a few commands to run. SO we need to run that as a script.
-                    # --> So we create a shell script with the required commands, and then run the script with the [runMavenShellScript] function
-                    # --> Note that Circle CI Orbs file inclusion works with only Onefile, that's why we HAVE to generate it "on the fly"
-                    if [ -f ./.noheaders/mvn.script.sh ]; then
-                      rm ./.noheaders/mvn.script.sh
-                    fi;
-
-                    # --- model is [mvn_release_trim_snapshot.sh]
-                    # 1./ Ok,so first, need to pick up the maven project version from [pom.xml], using the maven exec plugin
-                    echo "export MVN_PRJ_VERSION=\$(mvn -Dexec.executable='echo' -Dexec.args='\${project.version}' --non-recursive exec:exec -q; echo \"\$?\" > maven.exit.code)" | tee -a ./.noheaders/mvn.script.sh
-                    export MVN_COMMAND="mvn -Dexec.executable='echo' -Dexec.args='\\\${project.version}' --non-recursive exec:exec -q"
-                    echo "export MVN_EXIT_CODE=\$(cat maven.exit.code)" | tee -a ./.noheaders/mvn.script.sh
-                    echo "echo \"[\$0] The exit code of the [${MVN_COMMAND}] maven command is [\${MVN_EXIT_CODE}] \"" | tee -a ./.noheaders/mvn.script.sh
-                    echo "if ! [ \"\${MVN_EXIT_CODE}\" == \"0\" ]; then" | tee -a ./.noheaders/mvn.script.sh
-                    echo "  echo \"[\$0] The exit code of the [${MVN_COMMAND}] maven command is [\${MVN_EXIT_CODE}], so not zero \"" | tee -a ./.noheaders/mvn.script.sh
-                    echo "  rm maven.exit.code" | tee -a ./.noheaders/mvn.script.sh
-                    echo "  exit \${MVN_EXIT_CODE}" | tee -a ./.noheaders/mvn.script.sh
-                    echo "fi;" | tee -a ./.noheaders/mvn.script.sh
-                    echo "rm maven.exit.code" | tee -a ./.noheaders/mvn.script.sh
-
-                    echo "echo \"Resolved Maven Project version : [\${MVN_PRJ_VERSION}]\"" | tee -a ./.noheaders/mvn.script.sh
-                    # But MVN_PRJ_VERSION has the '-SNAPSHOT' suffix, we need to strip it off, to pass that exact verion to maven version plugin
-                    echo "export MVN_PRJ_VERSION=\$(echo \"\${MVN_PRJ_VERSION}\" | awk -F '-SNAPSHOT' '{print \$1}')" | tee -a ./.noheaders/mvn.script.sh
-                    echo "echo \"trimmed [-SNAPSHOT] suffix from Maven Project version : [\${MVN_PRJ_VERSION}]\"" | tee -a ./.noheaders/mvn.script.sh
-                    # So we can retrieve the project version out of container
-                    echo "echo \"\${MVN_PRJ_VERSION}\" > ./.noheaders/gio.maven.project.version" | tee -a ./.noheaders/mvn.script.sh
-                    # 2./ and then we can run the [mvn -B versions:set -DnewVersion=1.3.1 -DgenerateBackupPoms=false]
-                    export MVN_COMMAND="mvn -B versions:set -DnewVersion=\\\${MVN_PRJ_VERSION} -DgenerateBackupPoms=false"
-                    echo "mvn -B versions:set -DnewVersion=\${MVN_PRJ_VERSION} -DgenerateBackupPoms=false" | tee -a ./.noheaders/mvn.script.sh
-                    # 3./ Exit code
-                    echo "export MVN_EXIT_CODE=\$?" | tee -a ./.noheaders/mvn.script.sh
-                    echo "echo \"[\$0] The exit code of the [${MVN_COMMAND}] maven command is [\${MVN_EXIT_CODE}] \"" | tee -a ./.noheaders/mvn.script.sh
-                    echo "exit \${MVN_EXIT_CODE}" | tee -a ./.noheaders/mvn.script.sh
-                    # finally let's make it executable, before passing it to the [runMavenShellScript] function
-                    chmod +x ./.noheaders/mvn.script.sh
-                    echo "# --------------------------------------------------------"
-                    echo " Content of the POM.XML"
-                    echo "# --------------------------------------------------------"
-                    cat ./pom.xml
-                    echo "# --------------------------------------------------------"
-                    runMavenShellScript ./.noheaders/mvn.script.sh
-
-
-
-                    export MVN_PRJ_VERSION=$(cat ./.noheaders/gio.maven.project.version)
-                    export MVN_PRJ_VERSION_MAJOR=$(cat ./.noheaders/gio.maven.project.version | awk -F '.' '{print $1}')
-                    export MVN_PRJ_VERSION_MINOR=$(cat ./.noheaders/gio.maven.project.version | awk -F '.' '{print $2}')
-                    export MVN_PRJ_VERSION_PATCH=$(cat ./.noheaders/gio.maven.project.version | awk -F '.' '{print $3}')
-
-                    echo "MVN_PRJ_VERSION=[${MVN_PRJ_VERSION}]"
-                    echo "MVN_PRJ_VERSION_PATCH=[${MVN_PRJ_VERSION_PATCH}]"
-
-                    # ---
-                    # the command to update dependencies
-                    export MVN_UPDATER_CMD="mvn -B -U versions:update-properties -Dincludes=io.gravitee.*:* -DallowMajorUpdates=false -DallowMinorUpdates=false -DallowIncrementalUpdates=true -DgenerateBackupPoms=false"
-                    echo "${MVN_UPDATER_CMD}" > ./.noheaders/mvn.script2.sh
-                    echo "export MVN_EXIT_CODE=\$?" | tee -a ./.noheaders/mvn.script2.sh
-                    echo "echo \"[\$0] The exit code of the [${MVN_UPDATER_CMD}] maven command is [\${MVN_EXIT_CODE}] \"" | tee -a ./.noheaders/mvn.script2.sh
-                    echo "exit \${MVN_EXIT_CODE}" | tee -a ./.noheaders/mvn.script2.sh
-                    chmod +x ./.noheaders/mvn.script2.sh
-
-                    # ---
-                    # If The maven project version, ends with '.0', then
-                    # this is a maintainance release
-                    if [ "${MVN_PRJ_VERSION_PATCH}" == "0" ]; then
-                      # yes it is a maintainance version
-                      runMavenShellScript ./.noheaders/mvn.script2.sh
-                    else
-                      # no it is not a maintainance version
-                      runMavenShellScript ./.noheaders/mvn.script2.sh
-                    fi;
-
-
-                    # --- --- --- --- --- --- --- #
-                    # ---  FINAL MVN DEPLOY   --- #
-                    # --- --- --- --- --- --- --- #
-
-                    export MVN_COMMAND="mvn clean"
-
-                    # ---------------------------------------
-                    # is it a dry run
-                    # ---------------------------------------
-                    echo "# ---------------------------------------"
-                    echo " IS IT A DRY RUN ? [DRY_RUN=[${DRY_RUN}]] "
-                    echo "# ---------------------------------------"
-                    # the GIT_COMMIT env. var. will be picked up by maven
-                    export GIT_COMMIT=$(git rev-parse HEAD)
-                    # Ok, that's just the way it is is Circle CI types (inverted from C LANGUAGE AND ALL UNIX CONVENTIONS : ZERO IS FALSE, ONE IS TRUE....)
-                    if [ "${DRY_RUN}" == "1" ]; then
-                      # --->>> YES IT IS A DRY RUN
-                      echo "# --->>> YES IT IS A DRY RUN"
-                      echo "Release Dry Mode is ON"
-                      export MVN_COMMAND="mvn -B -U clean install"
-                      echo "${MVN_COMMAND}" | tee ./.noheaders/mvn.script3.sh
-
-                      echo "export MVN_EXIT_CODE=\$?" | tee -a ./.noheaders/mvn.script3.sh
-                      echo "echo \"[\$0] The exit code of the previous maven command is [\${MVN_EXIT_CODE}] \"" | tee -a ./.noheaders/mvn.script3.sh
-                      echo "if ! [ \"\${MVN_EXIT_CODE}\" == \"0\" ]; then" | tee -a ./.noheaders/mvn.script3.sh
-                      echo "  echo \"[\$0] The exit code of the [${MVN_COMMAND}] maven command is [\${MVN_EXIT_CODE}], so not zero \"" | tee -a ./.noheaders/mvn.script3.sh
-                      echo "  exit \${MVN_EXIT_CODE}" | tee -a ./.noheaders/mvn.script3.sh
-                      echo "fi;" | tee -a ./.noheaders/mvn.script3.sh
-
-                      export MVN_COMMAND="mvn enforcer:enforce"
-                      echo "${MVN_COMMAND}" | tee -a ./.noheaders/mvn.script3.sh
-                      echo "export MVN_EXIT_CODE=\$?" | tee -a ./.noheaders/mvn.script3.sh
-                      echo "echo \"[\$0] The exit code of the [${MVN_COMMAND}] maven command is [\${MVN_EXIT_CODE}] \"" | tee -a ./.noheaders/mvn.script3.sh
-                      echo "exit \${MVN_EXIT_CODE}" | tee -a ./.noheaders/mvn.script3.sh
-                      chmod +x ./.noheaders/mvn.script3.sh
-                      runMavenShellScript ./.noheaders/mvn.script3.sh
-
-                    else
-                      if [ "${DRY_RUN}" == "0" ]; then
-                        # --->>> NO IT IS NOT A DRY RUN
-                        echo "# --->>> NO IT IS NOT A DRY RUN"
-                        #  -Dgio.username=${ARTIFACTORY_BOT_USER_NAME} -Dgio.password=${ARTIFACTORY_BOT_USER_PWD} -Dbuildnumber=${GIO_BUILD_NUMBER} -DskipTests
-                        export MVN_COMMAND="mvn -s ./settings.xml -B -U -P ${DRY_RUN_MVN_PROFILE_ID} clean deploy -Dbuildnumber=${GIO_BUILD_NUMBER}"
-                        echo "${MVN_COMMAND}" > ./.noheaders/mvn.script4.sh
-                        echo "export MVN_EXIT_CODE=\$?" | tee -a ./.noheaders/mvn.script4.sh
-                        echo "echo \"The exit code of the [${MVN_COMMAND}] maven command is [\${MVN_EXIT_CODE}] \"" | tee -a ./.noheaders/mvn.script4.sh
-                        echo "exit \${MVN_EXIT_CODE}" | tee -a ./.noheaders/mvn.script4.sh
-                        chmod +x ./.noheaders/mvn.script4.sh
-                        runMavenShellScript ./.noheaders/mvn.script4.sh
-
-                      else
-                        echo "Error : received [DRY_RUN=[${DRY_RUN}]] value, while Circle CI should have transmitted either ZERO for false, or ONE, for false"
-                        exit 3
-                      fi;
-                    fi;
-
-
-
-                    # ---- AVANT
-                    # export MAVEN_COMMAND="mvn -s ./settings.xml -X -T 4 -B -U -P ${DRY_RUN_MVN_PROFILE_ID} deploy -Dgio.username=${ARTIFACTORY_BOT_USER_NAME} -Dgio.password=${ARTIFACTORY_BOT_USER_PWD} -Dbuildnumber=${GIO_BUILD_NUMBER} -DskipTests"
-                    # echo "MAVEN_COMMAND=[${MAVEN_COMMAND}]"
-                    # ls -allh $HOME/.m2/repository | grep gravitee-common
-                    # docker run --name mvndeploy -it --rm -v "$PWD/temp-parent-pom-wrkspace":/usr/src/mymaven -v "$HOME/.m2":/root/.m2 -w /usr/src/mymaven ${MVN_DOCKER_IMAGE} ${MAVEN_COMMAND}
+  mvn_deploy_gravitee_component:
+    machine:
+      resource_class: medium
+      image: 'ubuntu-1604:201903-01'    # recommended linux image - includes Ubuntu 16.04, docker 18.09.3, docker-compose 1.23.1
+      # docker_layer_caching: true    # default - false # requires a Circle CI plan that includes [Docker layer caching feature]
+    steps:
+      # I do not checkout the source code of
+      # the [clever-cloud-artifactory-deployment-prototype] git repo, but the
+      # - checkout
       - run:
-          name: "Maven clean install the maven project"
+          name: "Redefine Gravitee Parent POM in clevercloud referential"
           command: |
-                    export MVN_DOCKER_IMAGE="maven:${DESIRED_MAVEN_VERSION}-openjdk-16 "
-                    export MAVEN_COMMAND="mvn -T 4 clean install -DskipTests"
-                    echo "MAVEN_COMMAND=[${MAVEN_COMMAND}]"
-                    docker run -it --rm -v "$PWD/gio-maven-project":/usr/src/mymaven -v "$HOME/.m2":/root/.m2 -w /usr/src/mymaven ${MVN_DOCKER_IMAGE} ${MAVEN_COMMAND}
+                    git clone https://github.com/gravitee-lab/gravitee-parent ./
+                    git checkout 3.1.x
+      - secrethub/install
+      - mvn_release:
+          dry_run: true
+          # maven_version: 3.6.3
+          dry_run_mvn_profile_id: gravitee-dry-run
+          secrethub_org: gravitee-lab
+          secrethub_repo: cicd
 
-      - run: # maven deploy
-          name: "Maven Deploy the Gravitee Component to Central Maven Repo : JFrog / Clevercloud"
-          command: |
-                    echo "# --------------------------------------------------------"
-                    echo "Copy settings.xml into [$PWD/gio-maven-project/] folder"
-                    echo "# --------------------------------------------------------"
-                    cp $PWD/dry-run-conf/settings.xml $PWD/gio-maven-project/
-                    echo "# --------------------------------------------------------"
-                    ls -allh $PWD/gio-maven-project/settings.xml
-                    cat $PWD/gio-maven-project/settings.xml
-                    echo "# --------------------------------------------------------"
-                    echo "Maven Deploy to Clever Cloud Artifactory"
-                    echo "# --------------------------------------------------------"
-                    export MVN_DOCKER_IMAGE="maven:${DESIRED_MAVEN_VERSION}-openjdk-16"
-                    #
-                    # see https://github.com/jfrog/project-examples/tree/master/artifactory-maven-plugin-example
-                    # export SECRETHUB_ORG="gravitee-lab"
-                    # export SECRETHUB_REPO="cicd"
-                    export ARTIFACTORY_BOT_USER_NAME=$(secrethub read "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/user-name")
-                    export ARTIFACTORY_BOT_USER_PWD=$(secrethub read "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/user-pwd")
-                    export GIO_BUILD_NUMBER=${CIRCLE_SHA1}
-                    echo "JFROG_USERNAME=[${JFROG_USERNAME}]"
-                    # echo "JFROG_SECRET=[${JFROG_SECRET}]"
-                    export MAVEN_COMMAND="mvn -s ./settings.xml -X -T 4 deploy -Dgio.username=${ARTIFACTORY_BOT_USER_NAME} -Dgio.password=${ARTIFACTORY_BOT_USER_PWD} -Dbuildnumber=${GIO_BUILD_NUMBER} -DskipTests -DrepositoryId=dry-run-artifactory-snapshots -Durl=https://gravitee.jfrog.io/artifactory  -DaltDeploymentRepository=snapshots::default::https://gravitee.jfrog.io/artifactory -DaltSnapshotDeploymentRepository=snapshots::default::https://gravitee.jfrog.io/artifactory -DaltReleaseDeploymentRepository=releases::default::https://gravitee.jfrog.io/artifactory "
-                    echo "MAVEN_COMMAND=[${MAVEN_COMMAND}]"
-                    # ls -allh $HOME/.m2/repository | grep gravitee-common
-                    docker run --name mvndeploy -it --rm -v "$PWD/gio-maven-project":/usr/src/mymaven -v "$HOME/.m2":/root/.m2 -w /usr/src/mymaven ${MVN_DOCKER_IMAGE} ${MAVEN_COMMAND}
 workflows:
   version: 2.1
   maven_deploy:
@@ -313,10 +72,19 @@ workflows:
               # only:
                 # - master
     jobs:
-      - mvn_deploy:
+      - mvn_deploy_gravitee_parent:
           context: cicd-orchestrator
           # filters:
             # tags:
               # only: /^stable-latest/
             # branches:
               # ignore: /.*/
+      - mvn_deploy_gravitee_component:
+          context: cicd-orchestrator
+          # filters:
+            # tags:
+              # only: /^stable-latest/
+            # branches:
+              # ignore: /.*/
+          requires:
+            - mvn_deploy_gravitee_parent
