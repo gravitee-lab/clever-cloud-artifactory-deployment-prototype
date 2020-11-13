@@ -176,9 +176,6 @@ cat <<EOF >>./.secret.settings.xml
       <password>${ARTIFACTORY_BOT_USER_PWD}</password>
     </server>
   </servers>
-  <activeProfiles>
-    <activeProfile>gravitee-dry-run</activeProfile>
-  </activeProfiles>
   <profiles>
     <profile>
       <id>gravitee-dry-run</id>
@@ -191,41 +188,11 @@ cat <<EOF >>./.secret.settings.xml
                 <value>true</value>
             </property>
         </activation>
-        <build>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-enforcer-plugin</artifactId>
-                    <executions>
-                        <execution>
-                            <id>enforce-no-snapshots</id>
-                            <goals>
-                                <goal>enforce</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>2.8</version>
-                    <configuration>
-                        <additionalparam>-Xdoclint:none</additionalparam>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <id>attach-javadocs</id>
-                            <goals>
-                                <goal>jar</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-            </plugins>
-        </build>
     </profile>
   </profiles>
+  <activeProfiles>
+  <activeProfile>gravitee-dry-run</activeProfile>
+  </activeProfiles>
 </settings>
 EOF
 
