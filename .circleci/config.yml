@@ -21,6 +21,7 @@ jobs:
       # I do not checkout the source code of
       # the [clever-cloud-artifactory-deployment-prototype] git repo, but the
       # https://github.com/gravitee-lab/gravitee-parent repo
+      # 
       # - checkout
       - run:
           name: "Redefine Gravitee Parent POM in clevercloud referential"
