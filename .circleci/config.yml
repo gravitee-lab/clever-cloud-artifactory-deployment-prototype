@@ -26,7 +26,6 @@ jobs:
           command: |
                     git clone https://github.com/gravitee-lab/gravitee-parent ./
                     git checkout 17.x
-                    mkdir -p ./.circleci/
       - secrethub/install
       - gravitee/mvn_release:
           dry_run: true
@@ -49,7 +48,6 @@ jobs:
           command: |
                     git clone https://github.com/gravitee-lab/gravitee-parent ./
                     git checkout 3.1.x
-                    mkdir -p ./.circleci/
       - secrethub/install
       - gravitee/mvn_release:
           dry_run: true
