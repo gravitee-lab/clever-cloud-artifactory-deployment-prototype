@@ -177,11 +177,11 @@ cat <<EOF >>./.secret.settings.xml
     </server>
   </servers>
   <activeProfiles>
-    <activeProfile>gravitee-dry-run-release</activeProfile>
+    <activeProfile>gravitee-dry-run</activeProfile>
   </activeProfiles>
   <profiles>
     <profile>
-      <id>gravitee-dry-run-release</id>
+      <id>gravitee-dry-run</id>
         <properties>
           <altDeploymentRepository>clever-cloud-artifactory-dry-run-releases::default::${ARTIFACTORY_REPO_RELEASE_URL}</altDeploymentRepository>
         </properties>
