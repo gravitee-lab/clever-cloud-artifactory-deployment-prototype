@@ -38,13 +38,20 @@ jobs:
       # I do not checkout the source code of
       # the [clever-cloud-artifactory-deployment-prototype] git repo, but the
       # https://github.com/gravitee-lab/gravitee-parent repo
-      # - 
+      # -
       # - checkout
       - run:
           name: "Redefine Gravitee Parent POM in clevercloud referential"
           command: |
                     git clone https://github.com/gravitee-lab/gravitee-parent ./
                     git checkout 17.x
+      - run:
+          name: "Checking context variables"
+          command: |
+                    echo "DRY_RUN=[${DRY_RUN}]"
+                    echo "DRY_RUN_MVN_PROFILE_ID=[${DRY_RUN_MVN_PROFILE_ID}]"
+                    echo "SECRETHUB_ORG=[${SECRETHUB_ORG}]"
+                    echo "SECRETHUB_REPO=[${SECRETHUB_REPO}]"
       - secrethub/install
       - gravitee/mvn_release:
           dry_run: << pipeline.parameters.dry_run >>
