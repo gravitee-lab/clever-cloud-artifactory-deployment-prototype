@@ -33,7 +33,6 @@ jobs:
     machine:
       resource_class: medium
       image: 'ubuntu-1604:201903-01'    # recommended linux image - includes Ubuntu 16.04, docker 18.09.3, docker-compose 1.23.1
-      # docker_layer_caching: true    # default - false # requires a Circle CI plan that includes [Docker layer caching feature]
     steps:
       # I do not checkout the source code of
       # the [clever-cloud-artifactory-deployment-prototype] git repo, but the
@@ -64,7 +63,6 @@ jobs:
     machine:
       resource_class: medium
       image: 'ubuntu-1604:201903-01'    # recommended linux image - includes Ubuntu 16.04, docker 18.09.3, docker-compose 1.23.1
-      # docker_layer_caching: true    # default - false # requires a Circle CI plan that includes [Docker layer caching feature]
     steps:
       # I do not checkout the source code of
       # the [clever-cloud-artifactory-deployment-prototype] git repo, but the
@@ -93,19 +91,6 @@ jobs:
 workflows:
   version: 2.1
   maven_deploy:
-    # triggers:
-      # - schedule:
-          # Every sunday at midnight UTC
-          # cron: "0 0 * * *"
-          # not supported by Circle CI
-          # cron: "*/5 * * * *"
-          # cron: '* * * * *'
-          # Every hour UTC
-          # cron: "0 * * * *"
-          # filters:
-            # branches:
-              # only:
-                # - master
     jobs:
       - mvn_deploy_gravitee_parent:
           context: cicd-orchestrator
