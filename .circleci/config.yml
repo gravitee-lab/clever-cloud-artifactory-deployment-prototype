@@ -48,7 +48,7 @@ jobs:
       - run:
           name: "Checking context variables"
           command: |
-                    echo "DRY_RUN=[${DRY_RUN}]"
+                    echo "DRY_RUN=[$DRY_RUN]"
                     echo "DRY_RUN_MVN_PROFILE_ID=[${DRY_RUN_MVN_PROFILE_ID}]"
                     echo "SECRETHUB_ORG=[${SECRETHUB_ORG}]"
                     echo "SECRETHUB_REPO=[${SECRETHUB_REPO}]"
@@ -75,6 +75,13 @@ jobs:
           command: |
                     git clone https://github.com/gravitee-lab/gravitee-common ./
                     git checkout 1.18.x
+      - run:
+          name: "Checking context variables"
+          command: |
+                    echo "DRY_RUN=[$DRY_RUN]"
+                    echo "DRY_RUN_MVN_PROFILE_ID=[${DRY_RUN_MVN_PROFILE_ID}]"
+                    echo "SECRETHUB_ORG=[${SECRETHUB_ORG}]"
+                    echo "SECRETHUB_REPO=[${SECRETHUB_REPO}]"
       - secrethub/install
       - gravitee/mvn_release:
           dry_run: << pipeline.parameters.dry_run >>
