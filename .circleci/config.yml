@@ -12,10 +12,6 @@ jobs:
       resource_class: medium
       image: 'ubuntu-1604:201903-01'    # recommended linux image - includes Ubuntu 16.04, docker 18.09.3, docker-compose 1.23.1
       # docker_layer_caching: true    # default - false # requires a Circle CI plan that includes [Docker layer caching feature]
-    environment:
-      DRY_RUN_MVN_PROFILE_ID: ${DRY_RUN_MVN_PROFILE_ID}
-      SECRETHUB_ORG: ${SECRETHUB_ORG}
-      SECRETHUB_REPO: ${SECRETHUB_REPO}
     steps:
       # I do not checkout the source code of
       # the [clever-cloud-artifactory-deployment-prototype] git repo, but the
@@ -31,9 +27,9 @@ jobs:
       - gravitee/mvn_release:
           dry_run: true
           # maven_version: 3.6.3
-          dry_run_mvn_profile_id: ${DRY_RUN_MVN_PROFILE_ID}
-          secrethub_org: ${SECRETHUB_ORG}
-          secrethub_repo: ${SECRETHUB_REPO}
+          dry_run_mvn_profile_id: $DRY_RUN_MVN_PROFILE_ID
+          secrethub_org: $SECRETHUB_ORG
+          secrethub_repo: $SECRETHUB_REPO
 
   mvn_deploy_gravitee_component:
     machine:
@@ -41,9 +37,9 @@ jobs:
       image: 'ubuntu-1604:201903-01'    # recommended linux image - includes Ubuntu 16.04, docker 18.09.3, docker-compose 1.23.1
       # docker_layer_caching: true    # default - false # requires a Circle CI plan that includes [Docker layer caching feature]
     environment:
-      DRY_RUN_MVN_PROFILE_ID: ${DRY_RUN_MVN_PROFILE_ID}
-      SECRETHUB_ORG: ${SECRETHUB_ORG}
-      SECRETHUB_REPO: ${SECRETHUB_REPO}
+      DRY_RUN_MVN_PROFILE_ID: $DRY_RUN_MVN_PROFILE_ID
+      SECRETHUB_ORG: $SECRETHUB_ORG
+      SECRETHUB_REPO: $SECRETHUB_REPO
     steps:
       # I do not checkout the source code of
       # the [clever-cloud-artifactory-deployment-prototype] git repo, but the
