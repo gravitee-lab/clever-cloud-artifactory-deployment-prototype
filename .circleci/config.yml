@@ -33,8 +33,8 @@ jobs:
           dry_run: true
           # maven_version: 3.6.3
           dry_run_mvn_profile_id: ${DRY_RUN_MVN_PROFILE_ID}
-          secrethub_org: gravitee-lab
-          secrethub_repo: cicd
+          secrethub_org: ${SECRETHUB_ORG}
+          secrethub_repo: ${SECRETHUB_REPO}
 
   mvn_deploy_gravitee_component:
     machine:
@@ -56,8 +56,8 @@ jobs:
           dry_run: true
           # maven_version: 3.6.3
           dry_run_mvn_profile_id: ${DRY_RUN_MVN_PROFILE_ID}
-          secrethub_org: gravitee-lab
-          secrethub_repo: cicd
+          secrethub_org: ${SECRETHUB_ORG}
+          secrethub_repo: ${SECRETHUB_REPO}
 
 workflows:
   version: 2.1
