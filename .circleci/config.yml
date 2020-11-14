@@ -21,7 +21,7 @@ jobs:
       # I do not checkout the source code of
       # the [clever-cloud-artifactory-deployment-prototype] git repo, but the
       # https://github.com/gravitee-lab/gravitee-parent repo
-      # - 
+      # -
       # - checkout
       - run:
           name: "Redefine Gravitee Parent POM in clevercloud referential"
@@ -44,12 +44,13 @@ jobs:
     steps:
       # I do not checkout the source code of
       # the [clever-cloud-artifactory-deployment-prototype] git repo, but the
+      # https://github.com/gravitee-lab/gravitee-common repo
       # - checkout
       - run:
           name: "Redefine Gravitee Parent POM in clevercloud referential"
           command: |
-                    git clone https://github.com/gravitee-lab/gravitee-parent ./
-                    git checkout 3.1.x
+                    git clone https://github.com/gravitee-lab/gravitee-common ./
+                    git checkout 1.18.x
       - secrethub/install
       - gravitee/mvn_release:
           dry_run: true
