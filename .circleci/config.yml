@@ -2,6 +2,28 @@
 # Machine executor, set the machine key to true in .circleci/config.yml:
 version: 2.1
 
+parameters:
+  gio_action:
+    type: enum
+    enum: [release, pr_build]
+    default: pr_build
+  dry_run:
+    type: boolean
+    default: true
+    description: "Run in dry run mode ?"
+  dry_run_mvn_profile_id:
+    type: string
+    default: "gravitee-dry-run"
+    description: "Maven ID of the Maven profile to use for a dry run ?"
+  secrethub_org:
+    type: string
+    default: "gravitee-lab"
+    description: "SecretHub Org to use to fetch secrets ?"
+  secrethub_repo:
+    type: string
+    default: "cicd"
+    description: "SecretHub Repo to use to fetch secrets ?"
+
 orbs:
   secrethub: secrethub/cli@1.0.0
   gravitee: gravitee-io/gravitee@dev:1.0.2
@@ -16,7 +38,7 @@ jobs:
       # I do not checkout the source code of
       # the [clever-cloud-artifactory-deployment-prototype] git repo, but the
       # https://github.com/gravitee-lab/gravitee-parent repo
-      # -
+      # - 
       # - checkout
       - run:
           name: "Redefine Gravitee Parent POM in clevercloud referential"
@@ -25,21 +47,17 @@ jobs:
                     git checkout 17.x
       - secrethub/install
       - gravitee/mvn_release:
-          dry_run: true
+          dry_run: << pipeline.parameters.dry_run >>
           # maven_version: 3.6.3
-          dry_run_mvn_profile_id: $DRY_RUN_MVN_PROFILE_ID
-          secrethub_org: $SECRETHUB_ORG
-          secrethub_repo: $SECRETHUB_REPO
+          dry_run_mvn_profile_id: << pipeline.parameters.dry_run_mvn_profile_id >>
+          secrethub_org: << pipeline.parameters.secrethub_org >>
+          secrethub_repo: << pipeline.parameters.secrethub_repo >>
 
   mvn_deploy_gravitee_component:
     machine:
       resource_class: medium
       image: 'ubuntu-1604:201903-01'    # recommended linux image - includes Ubuntu 16.04, docker 18.09.3, docker-compose 1.23.1
       # docker_layer_caching: true    # default - false # requires a Circle CI plan that includes [Docker layer caching feature]
-    environment:
-      DRY_RUN_MVN_PROFILE_ID: $DRY_RUN_MVN_PROFILE_ID
-      SECRETHUB_ORG: $SECRETHUB_ORG
-      SECRETHUB_REPO: $SECRETHUB_REPO
     steps:
       # I do not checkout the source code of
       # the [clever-cloud-artifactory-deployment-prototype] git repo, but the
@@ -52,11 +70,11 @@ jobs:
                     git checkout 1.18.x
       - secrethub/install
       - gravitee/mvn_release:
-          dry_run: true
+          dry_run: << pipeline.parameters.dry_run >>
           # maven_version: 3.6.3
-          dry_run_mvn_profile_id: ${DRY_RUN_MVN_PROFILE_ID}
-          secrethub_org: ${SECRETHUB_ORG}
-          secrethub_repo: ${SECRETHUB_REPO}
+          dry_run_mvn_profile_id: << pipeline.parameters.dry_run_mvn_profile_id >>
+          secrethub_org: << pipeline.parameters.secrethub_org >>
+          secrethub_repo: << pipeline.parameters.secrethub_repo >>
 
 workflows:
   version: 2.1
