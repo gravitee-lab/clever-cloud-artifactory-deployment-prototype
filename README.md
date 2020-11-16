@@ -279,7 +279,7 @@ ls -allh ${GNUPGHOME}
 gpg --list-secret-keys
 
 
-export GPG_SIGNING_KEY=$(gpg --list-signatures -a "${GRAVITEEBOT_GPG_USER_NAME} <${GRAVITEEBOT_GPG_USER_EMAIL}>" | grep 'sig' | tail -n 1 | awk '{print $2}')
+export GRAVITEEBOT_GPG_SIGNING_KEY=$(gpg --list-signatures -a "${GRAVITEEBOT_GPG_USER_NAME} <${GRAVITEEBOT_GPG_USER_EMAIL}>" | grep 'sig' | tail -n 1 | awk '{print $2}')
 echo "GRAVITEEBOT - GPG_SIGNING_KEY=[${GPG_SIGNING_KEY}]"
 
 
@@ -316,13 +316,19 @@ export GRAVITEEBOT_GPG_PASSPHRASE="your gpg passphrase to test all that on your 
 # That's Jean-Baptiste Lasselle's GPG_SIGNING_KEY for git (used as example)
 export GPG_SIGNING_KEY_ID=7B19A8E1574C2883
 # ---
-# That's the GPG_SIGNING_KEY used buy the "Gravitee.io Lab Bot" for git and singing any file
-export GPG_SIGNING_KEY_ID=$(gpg --list-signatures -a "${GRAVITEEBOT_GPG_USER_NAME} <${GRAVITEEBOT_GPG_USER_EMAIL}>" | grep 'sig' | tail -n 1 | awk '{print $2}')
+# That's the GPG_SIGNING_KEY used buy the "Gravitee.io Lab Bot" for git and signing any file
+export GRAVITEEBOT_GPG_SIGNING_KEY=$(gpg --list-signatures -a "${GRAVITEEBOT_GPG_USER_NAME} <${GRAVITEEBOT_GPG_USER_EMAIL}>" | grep 'sig' | tail -n 1 | awk '{print $2}')
 gpg --keyid-format LONG -k "0x${GPG_SIGNING_KEY_ID}"
 
 echo "${GRAVITEEBOT_GPG_PASSPHRASE}" | gpg -u "0x${GPG_SIGNING_KEY_ID}" --pinentry-mode loopback --passphrase-fd 0 --sign ./some-file-to-sign.txt
 echo "${GRAVITEEBOT_GPG_PASSPHRASE}" | gpg -u "0x${GPG_SIGNING_KEY_ID}" --pinentry-mode loopback --passphrase-fd 0 --detach-sign ./some-file-to-sign.txt
 
+
+
+# -- #
+# Will be interactive for private key : you
+# will have to type your GPG password
+# gpg --export-secret-key -a "${GRAVITEEBOT_GPG_USER_NAME} <${GRAVITEEBOT_GPG_USER_EMAIL}>" | tee ${GPG_PRIVATE_KEY_FILE}
 
 # ------------------------------------------------------------------------------------------------ #
 # # - To sign a GPG Key  with 1 specific private keys
@@ -346,6 +352,15 @@ echo "In software, we use detached signatures, because when you sign a very "
 echo "big size file, distributing the signature does not force distributing a very big file"
 echo "# ------------------------------------------------------------------------------------------------ #"
 
+echo "To verify the GPG signature \"Somewhere else\" we will also need the GPG Public key"
+export GPG_PUB_KEY_FILE="$(pwd)/graviteebot.gpg.pub.key"
+# export GPG_PRIVATE_KEY_FILE="$(pwd)/graviteebot.gpg.priv.key"
+
+# --- #
+# saving
+gpg --export -a "${GRAVITEEBOT_GPG_USER_NAME} <${GRAVITEEBOT_GPG_USER_EMAIL}>" | tee ${GPG_PUB_KEY_FILE}
+# gpg --export -a "Jean-Baptiste Lasselle <jean.baptiste.lasselle.pegasus@gmail.com>" | tee ${GPG_PUB_KEY_FILE}
+
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # ------------------------------------------------------------------------------------------------ #
 # -- TESTS --   Now test verifying the signed file, using its detached signature       -- TESTS -- #
@@ -354,7 +369,7 @@ echo "# ------------------------------------------------------------------------
 echo "  Now testing verifying the file with its detached signature :"
 gpg --verify ./some-file-to-sign.txt.sig some-file-to-sign.txt
 echo "# ------------------------------------------------------------------------------------------------ #"
-echo "  Now testing verifying the file with its detached signature, in an Ephemeral GPG Keyring "
+echo "  Now testing verifying the file with its detached signature, in another Ephemeral GPG Keyring "
 echo "# ------------------------------------------------------------------------------------------------ #"
 export EPHEMERAL_KEYRING_FOLDER=$(mktemp -d)
 chmod 700 ${EPHEMERAL_KEYRING_FOLDER}
@@ -383,7 +398,16 @@ echo "    => GPG signature is Asymetric Cryptography (very important)"
 echo "# ------------------------------------------------------------------------------------------------ #"
 gpg --verify ./some-file-to-sign.txt.sig some-file-to-sign.txt
 
+# now we import the Public Key in the Ephemeral Context, trust it ultimately, and verify the file signature again
+gpg --import "${GPG_PUB_KEY_FILE}"
+# now we trust ultimately the Public Key in the Ephemeral Context,
+export GPG_SIGNING_KEY_ID=$(gpg --list-signatures -a "${GRAVITEEBOT_GPG_USER_NAME} <${GRAVITEEBOT_GPG_USER_EMAIL}>" | grep 'sig' | tail -n 1 | awk '{print $2}')
+echo "GPG_SIGNING_KEY_ID=[${GPG_SIGNING_KEY_ID}]"
 
+echo -e "5\ny\n" |  gpg --command-fd 0 --expert --edit-key ${GPG_SIGNING_KEY_ID} trust
+
+# And verify the file signature again
+gpg --verify ./some-file-to-sign.txt.sig some-file-to-sign.txt
 
 
 # -------------------------------------------------------------- #
