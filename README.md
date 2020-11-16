@@ -189,8 +189,21 @@ cat <<EOF >>./.secret.settings.xml
             </property>
         </activation>
     </profile>
+    <profile>
+      <id>gravitee-release</id>
+        <properties>
+          <altDeploymentRepository>clever-cloud-artifactory-dry-run-releases::default::${ARTIFACTORY_REPO_RELEASE_URL}</altDeploymentRepository>
+        </properties>
+        <activation>
+            <property>
+                <name>performRelease</name>
+                <value>true</value>
+            </property>
+        </activation>
+    </profile>
   </profiles>
   <activeProfiles>
+  <activeProfile>gravitee-release</activeProfile>
   <activeProfile>gravitee-dry-run</activeProfile>
   </activeProfiles>
 </settings>
@@ -201,6 +214,7 @@ secrethub write --in-file ./.secret.settings.xml "${SECRETHUB_ORG}/${SECRETHUB_R
 secrethub read --out-file ./test.retrievieving.settings.xml "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/infra/maven/dry-run/artifactory/settings.xml"
 
 cat ./test.retrievieving.settings.xml
+
 rm ./test.retrievieving.settings.xml
 
 ```
