@@ -52,6 +52,29 @@ jobs:
                     echo "DRY_RUN_MVN_PROFILE_ID=[${DRY_RUN_MVN_PROFILE_ID}]"
                     echo "SECRETHUB_ORG=[${SECRETHUB_ORG}]"
                     echo "SECRETHUB_REPO=[${SECRETHUB_REPO}]"
+      - run:
+          name: "Creating GPG Key tests"
+          command: |
+                    # https://www.gnupg.org/documentation/manuals/gnupg-devel/Unattended-GPG-key-generation.html
+                    export GNUPGHOME="$(mktemp -d)"
+                    cat >gravitee-lab-cicd-bot <<EOF
+                         %echo Generating a basic OpenPGP key
+                         Key-Type: DSA
+                         Key-Length: 1024
+                         Subkey-Type: ELG-E
+                         Subkey-Length: 1024
+                         Name-Real: Joe Tester
+                         Name-Comment: with stupid passphrase
+                         Name-Email: joe@foo.bar
+                         Expire-Date: 0
+                         Passphrase: abc
+                         # Do a commit here, so that we can later print "done" :-)
+                         %commit
+                         %echo done
+                    EOF
+                    gpg --batch --generate-key gravitee-lab-cicd-bot
+                    echo "GNUPGHOME=[${GNUPGHOME}]"
+                    ls -allh ${GNUPGHOME}
       - secrethub/install
       - gravitee/mvn_release:
           dry_run: << pipeline.parameters.dry_run >>
