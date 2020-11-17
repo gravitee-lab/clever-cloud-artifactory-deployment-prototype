@@ -229,6 +229,12 @@ exit 0
 # --- # --- # --- # --- # --- # --- # --- # --- # --- #
 # --- # --- # --- # --- # --- # --- # --- # --- # --- #
 # --- # --- # --- # --- # --- # --- # --- # --- # --- #
+# -------------------------------------------------------------- #
+# -------------------------------------------------------------- #
+# for the Gravitee CI CD Bot in
+# the https://github.com/gravitee-lab Github Org
+# -------------------------------------------------------------- #
+# -------------------------------------------------------------- #
 # https://www.gnupg.org/documentation/manuals/gnupg-devel/Unattended-GPG-key-generation.html
 export GRAVITEEBOT_GPG_USER_NAME="Gravitee.io Lab Bot"
 export GRAVITEEBOT_GPG_USER_NAME_COMMENT="Gravitee CI CD Bot in the https://github.com/gravitee-lab Github Org"
@@ -263,6 +269,44 @@ gpg --list-keys
 export GRAVITEEBOT_GPG_SIGNING_KEY=$(gpg --list-signatures -a "${GRAVITEEBOT_GPG_USER_NAME} (${GRAVITEEBOT_GPG_USER_NAME_COMMENT}) <${GRAVITEEBOT_GPG_USER_EMAIL}>" | grep 'sig' | tail -n 1 | awk '{print $2}')
 echo "GRAVITEEBOT - GPG_SIGNING_KEY=[${GRAVITEEBOT_GPG_SIGNING_KEY}]"
 
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# ------------------------------------------------------------------------------------------------ #
+# -- SAVING SECRETS TO SECRETHUB --                                                   -- SECRET -- #
+# ------------------------------------------------------------------------------------------------ #
+echo "To verify the GPG signature \"Somewhere else\" we will also need the GPG Public key"
+export GPG_PUB_KEY_FILE="$(pwd)/graviteebot.gpg.pub.key"
+export GPG_PRIVATE_KEY_FILE="$(pwd)/graviteebot.gpg.priv.key"
+
+# --- #
+# saving public and private GPG Keys to files
+gpg --export -a "${GRAVITEEBOT_GPG_USER_NAME} (${GRAVITEEBOT_GPG_USER_NAME_COMMENT}) <${GRAVITEEBOT_GPG_USER_EMAIL}>" | tee ${GPG_PUB_KEY_FILE}
+# gpg --export -a "Jean-Baptiste Lasselle <jean.baptiste.lasselle.pegasus@gmail.com>" | tee ${GPG_PUB_KEY_FILE}
+# -- #
+# Will be interactive for private key : you
+# will have to type your GPG password
+gpg --export-secret-key -a "${GRAVITEEBOT_GPG_USER_NAME} (${GRAVITEEBOT_GPG_USER_NAME_COMMENT}) <${GRAVITEEBOT_GPG_USER_EMAIL}>" | tee ${GPG_PRIVATE_KEY_FILE}
+# gpg --export-secret-key -a "Jean-Baptiste Lasselle <jean.baptiste.lasselle.pegasus@gmail.com>" | tee ${GPG_PRIVATE_KEY_FILE}
+
+
+
+export SECRETHUB_ORG="gravitee-lab"
+export SECRETHUB_REPO="cicd"
+secrethub mkdir --parents "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/gpg"
+
+export GRAVITEEBOT_GPG_USER_NAME="Gravitee.io Lab Bot"
+export GRAVITEEBOT_GPG_USER_NAME_COMMENT="Gravitee CI CD Bot in the https://github.com/gravitee-lab Github Org"
+export GRAVITEEBOT_GPG_USER_EMAIL="contact@gravitee-lab.io"
+export GRAVITEEBOT_GPG_PASSPHRASE="th3gr@vit331sdab@s3"
+
+
+echo "${GRAVITEEBOT_GPG_USER_NAME}" | secrethub write "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/gpg/user_name"
+echo "${GRAVITEEBOT_GPG_USER_NAME_COMMENT}" | secrethub write "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/gpg/user_name_comment"
+echo "${GRAVITEEBOT_GPG_USER_EMAIL}" | secrethub write "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/gpg/user_email"
+echo "${GRAVITEEBOT_GPG_PASSPHRASE}" | secrethub write "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/gpg/passphrase"
+echo "${GRAVITEEBOT_GPG_SIGNING_KEY}" | secrethub write "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/gpg/key_id"
+secrethub write --in-file ${GPG_PUB_KEY_FILE} "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/gpg/pub_key"
+secrethub write --in-file ${GPG_PRIVATE_KEY_FILE} "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/gpg/private_key"
+
 
 # ------------------------------------------------------------------------------------------------ #
 # ------------------------------------------------------------------------------------------------ #
@@ -270,7 +314,7 @@ echo "GRAVITEEBOT - GPG_SIGNING_KEY=[${GRAVITEEBOT_GPG_SIGNING_KEY}]"
 # ------------------------------------------------------------------------------------------------ #
 # ------------------------------------------------------------------------------------------------ #
 # ------------------------------------------------------------------------------------------------ #
-# -- TESTS --   Testing using the new GPG Key : encrypt a file, and decrypt it then    -- TESTS -- #
+# -- TESTS --   Testing using the new GPG Key : sign a file, and verify file signature -- TESTS -- #
 # ------------------------------------------------------------------------------------------------ #
 # ------------------------------------------------------------------------------------------------ #
 # ------------------------------------------------------------------------------------------------ #
@@ -298,11 +342,13 @@ export GRAVITEEBOT_GPG_PASSPHRASE="your gpg passphrase to test all that on your 
 export GPG_SIGNING_KEY_ID=7B19A8E1574C2883
 # ---
 # That's the GPG_SIGNING_KEY used buy the "Gravitee.io Lab Bot" for git and signing any file
-export GRAVITEEBOT_GPG_SIGNING_KEY=$(gpg --list-signatures -a "${GRAVITEEBOT_GPG_USER_NAME} <${GRAVITEEBOT_GPG_USER_EMAIL}>" | grep 'sig' | tail -n 1 | awk '{print $2}')
-gpg --keyid-format LONG -k "0x${GPG_SIGNING_KEY_ID}"
+export GRAVITEEBOT_GPG_SIGNING_KEY=$(gpg --list-signatures -a "${GRAVITEEBOT_GPG_USER_NAME} (${GRAVITEEBOT_GPG_USER_NAME_COMMENT}) <${GRAVITEEBOT_GPG_USER_EMAIL}>" | grep 'sig' | tail -n 1 | awk '{print $2}')
+echo "GRAVITEEBOT - GPG_SIGNING_KEY=[${GRAVITEEBOT_GPG_SIGNING_KEY}]"
 
-echo "${GRAVITEEBOT_GPG_PASSPHRASE}" | gpg -u "0x${GPG_SIGNING_KEY_ID}" --pinentry-mode loopback --passphrase-fd 0 --sign ./some-file-to-sign.txt
-echo "${GRAVITEEBOT_GPG_PASSPHRASE}" | gpg -u "0x${GPG_SIGNING_KEY_ID}" --pinentry-mode loopback --passphrase-fd 0 --detach-sign ./some-file-to-sign.txt
+gpg --keyid-format LONG -k "0x${GRAVITEEBOT_GPG_SIGNING_KEY}"
+
+echo "${GRAVITEEBOT_GPG_PASSPHRASE}" | gpg -u "0x${GRAVITEEBOT_GPG_SIGNING_KEY}" --pinentry-mode loopback --passphrase-fd 0 --sign ./some-file-to-sign.txt
+echo "${GRAVITEEBOT_GPG_PASSPHRASE}" | gpg -u "0x${GRAVITEEBOT_GPG_SIGNING_KEY}" --pinentry-mode loopback --passphrase-fd 0 --detach-sign ./some-file-to-sign.txt
 
 
 
@@ -333,14 +379,11 @@ echo "In software, we use detached signatures, because when you sign a very "
 echo "big size file, distributing the signature does not force distributing a very big file"
 echo "# ------------------------------------------------------------------------------------------------ #"
 
-echo "To verify the GPG signature \"Somewhere else\" we will also need the GPG Public key"
-export GPG_PUB_KEY_FILE="$(pwd)/graviteebot.gpg.pub.key"
-# export GPG_PRIVATE_KEY_FILE="$(pwd)/graviteebot.gpg.priv.key"
 
-# --- #
-# saving
-gpg --export -a "${GRAVITEEBOT_GPG_USER_NAME} <${GRAVITEEBOT_GPG_USER_EMAIL}>" | tee ${GPG_PUB_KEY_FILE}
-# gpg --export -a "Jean-Baptiste Lasselle <jean.baptiste.lasselle.pegasus@gmail.com>" | tee ${GPG_PUB_KEY_FILE}
+
+
+
+
 
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # ------------------------------------------------------------------------------------------------ #
@@ -391,26 +434,6 @@ echo -e "5\ny\n" |  gpg --command-fd 0 --expert --edit-key ${GPG_SIGNING_KEY_ID}
 gpg --verify ./some-file-to-sign.txt.sig some-file-to-sign.txt
 
 
-# -------------------------------------------------------------- #
-# -------------------------------------------------------------- #
-# for the Gravitee CI CD Bot in
-# the https://github.com/gravitee-lab Github Org
-# -------------------------------------------------------------- #
-# -------------------------------------------------------------- #
-export SECRETHUB_ORG="gravitee-lab"
-export SECRETHUB_REPO="cicd"
-secrethub mkdir --parents "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/gpg"
-
-
-
-export GPG_KEYRING_FILE="${GNUPGHOME}/graviteebot.gpg.pub.key"
-export GPG_PUB_KEY_FILE="${GNUPGHOME}/graviteebot.gpg.pub.key"
-
-export GPG_PRIVATE_KEY_FILE="${GNUPGHOME}/graviteebot.gpg.priv.key"
-
-
-secrethub write --in-file ${GPG_PUB_KEY_FILE} "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/git/gpg/pub_key"
-secrethub write --in-file ${GPG_PRIVATE_KEY_FILE} "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/git/gpg/private_key"
 
 
 
