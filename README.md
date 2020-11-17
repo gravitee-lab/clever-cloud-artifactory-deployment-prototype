@@ -434,43 +434,6 @@ echo -e "5\ny\n" |  gpg --command-fd 0 --expert --edit-key ${GPG_SIGNING_KEY_ID}
 gpg --verify ./some-file-to-sign.txt.sig some-file-to-sign.txt
 
 
-
-
-
-
-
-
-
-
-
-
-
-export GPG_SIGNING_KEY=$(gpg --list-signatures -a "${GRAVITEEBOT_GPG_USER_NAME} <${GRAVITEEBOT_GPG_USER_EMAIL}>" | grep 'sig' | tail -n 1 | awk '{print $2}')
-echo "GPG_SIGNING_KEY=${GPG_SIGNING_KEY}"
-
-export GPG_PUB_KEY_FILE="./graviteebot.gpg.pub.key"
-export GPG_PRIVATE_KEY_FILE="./graviteebot.gpg.priv.key"
-
-# --- #
-# saving
-gpg --export -a "${GRAVITEEBOT_GPG_USER_NAME} <${GRAVITEEBOT_GPG_USER_EMAIL}>" | tee ${GPG_PUB_KEY_FILE}
-# -- #
-# Will be interactive for private key : you
-# will have to type your GPG password
-gpg --export-secret-key -a "${GRAVITEEBOT_GPG_USER_NAME} <${GRAVITEEBOT_GPG_USER_EMAIL}>" | tee ${GPG_PRIVATE_KEY_FILE}
-
-secrethub write --in-file ${GPG_PUB_KEY_FILE} "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/git/gpg/pub_key"
-secrethub write --in-file ${GPG_PRIVATE_KEY_FILE} "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/git/gpg/private_key"
-
-echo "${GRAVITEEBOT_GPG_USER_NAME}" | secrethub write "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/git/gpg/user_name"
-echo "${GRAVITEEBOT_GPG_USER_EMAIL}" | secrethub write "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/git/gpg/user_email"
-echo "${GPG_SIGNING_KEY}" | secrethub write "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/git/gpg/signing_key"
-
-
-
-secrethub account inspect
-
-# --- #
 ```
 
 
