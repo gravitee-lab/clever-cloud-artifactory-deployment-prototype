@@ -241,7 +241,7 @@ export GRAVITEEBOT_GPG_USER_NAME_COMMENT="Gravitee CI CD Bot in the https://gith
 export GRAVITEEBOT_GPG_USER_EMAIL="contact@gravitee-lab.io"
 export GRAVITEEBOT_GPG_PASSPHRASE="th3gr@vit331sdab@s3"
 
-echo "Creating a GPG KEY for the Gravitee.io bot with username [${GRAVITEEBOT_GPG_USER_NAME}] and email [${GRAVITEEBOT_GPG_USER_EMAIL}], then hit the enter Key to proceed secrets initalization"
+echo "Creating a GPG KEY Pair for the Gravitee.io bot"
 echo "# -----------------------------------"
 # https://www.gnupg.org/documentation/manuals/gnupg-devel/Unattended-GPG-key-generation.html
 export GNUPGHOME="$(mktemp -d)"
@@ -266,8 +266,8 @@ ls -allh ${GNUPGHOME}
 gpg --list-secret-keys
 gpg --list-keys
 
-export GRAVITEEBOT_GPG_SIGNING_KEY=$(gpg --list-signatures -a "${GRAVITEEBOT_GPG_USER_NAME} (${GRAVITEEBOT_GPG_USER_NAME_COMMENT}) <${GRAVITEEBOT_GPG_USER_EMAIL}>" | grep 'sig' | tail -n 1 | awk '{print $2}')
-echo "GRAVITEEBOT - GPG_SIGNING_KEY=[${GRAVITEEBOT_GPG_SIGNING_KEY}]"
+export GRAVITEEBOT_GPG_SIGNING_KEY_ID=$(gpg --list-signatures -a "${GRAVITEEBOT_GPG_USER_NAME} (${GRAVITEEBOT_GPG_USER_NAME_COMMENT}) <${GRAVITEEBOT_GPG_USER_EMAIL}>" | grep 'sig' | tail -n 1 | awk '{print $2}')
+echo "GRAVITEEBOT - GPG_SIGNING_KEY=[${GRAVITEEBOT_GPG_SIGNING_KEY_ID}]"
 
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # ------------------------------------------------------------------------------------------------ #
@@ -303,10 +303,36 @@ echo "${GRAVITEEBOT_GPG_USER_NAME}" | secrethub write "${SECRETHUB_ORG}/${SECRET
 echo "${GRAVITEEBOT_GPG_USER_NAME_COMMENT}" | secrethub write "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/gpg/user_name_comment"
 echo "${GRAVITEEBOT_GPG_USER_EMAIL}" | secrethub write "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/gpg/user_email"
 echo "${GRAVITEEBOT_GPG_PASSPHRASE}" | secrethub write "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/gpg/passphrase"
-echo "${GRAVITEEBOT_GPG_SIGNING_KEY}" | secrethub write "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/gpg/key_id"
+echo "${GRAVITEEBOT_GPG_SIGNING_KEY_ID}" | secrethub write "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/gpg/key_id"
 secrethub write --in-file ${GPG_PUB_KEY_FILE} "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/gpg/pub_key"
 secrethub write --in-file ${GPG_PRIVATE_KEY_FILE} "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/gpg/private_key"
 
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# ------------------------------------------------------------------------------------------------ #
+# -- MISSING !!!!! -- Restore GPG Private and Public Keys to be able to sign Files AGAIN  !!!!! -- #
+# -------------------------------------------------------------------------------------------------#
+export EPHEMERAL_KEYRING_FOLDER_ZERO=$(mktemp -d)
+export RESTORE_GPG_TMP_DIR=$(mktemp -d)
+export RESTORED_GPG_PUB_KEY_FILE="$(pwd)/graviteebot.gpg.pub.key"
+export RESTORED_GPG_PRIVATE_KEY_FILE="$(pwd)/graviteebot.gpg.priv.key"
+
+chmod 700 ${EPHEMERAL_KEYRING_FOLDER_ZERO}
+export GNUPGHOME=${EPHEMERAL_KEYRING_FOLDER_ZERO}
+# gpg --list-secret-keys
+# gpg --list-pub-keys
+gpg --list-keys
+
+secrethub read --out-file ${RESTORED_GPG_PUB_KEY_FILE} "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/gpg/pub_key"
+secrethub read --out-file ${RESTORED_GPG_PRIVATE_KEY_FILE} "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/gpg/private_key"
+
+gpg --import ${RESTORED_GPG_PRIVATE_KEY_FILE}
+gpg --import ${RESTORED_GPG_PRIVATE_KEY_FILE}
+
+# now we trust ultimately the Public Key in the Ephemeral Context,
+export GRAVITEEBOT_GPG_SIGNING_KEY_ID=$(secrethub read "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/gpg/key_id")
+echo "GRAVITEEBOT_GPG_SIGNING_KEY_ID=[${GRAVITEEBOT_GPG_SIGNING_KEY_ID}]"
+
+echo -e "5\ny\n" |  gpg --command-fd 0 --expert --edit-key ${GRAVITEEBOT_GPG_SIGNING_KEY_ID} trust
 
 # ------------------------------------------------------------------------------------------------ #
 # ------------------------------------------------------------------------------------------------ #
@@ -314,7 +340,8 @@ secrethub write --in-file ${GPG_PRIVATE_KEY_FILE} "${SECRETHUB_ORG}/${SECRETHUB_
 # ------------------------------------------------------------------------------------------------ #
 # ------------------------------------------------------------------------------------------------ #
 # ------------------------------------------------------------------------------------------------ #
-# -- TESTS --   Testing using the new GPG Key : sign a file, and verify file signature -- TESTS -- #
+# -- TESTS --   Testing using the Restored GPG Key :                                   -- TESTS -- #
+# -- TESTS --   to sign a file, and verify file signature                              -- TESTS -- #
 # ------------------------------------------------------------------------------------------------ #
 # ------------------------------------------------------------------------------------------------ #
 # ------------------------------------------------------------------------------------------------ #
@@ -331,14 +358,14 @@ Hey I ma sooo important a file that
 I am in a file which is going to be signed to proove my integrity
 EOF
 
-export GRAVITEEBOT_GPG_PASSPHRASE="your gpg passphrase to test all that on your computer"
+export GRAVITEEBOT_GPG_PASSPHRASE=$(secrethub read "${SECRETHUB_ORG}/${SECRETHUB_REPO}/graviteebot/gpg/passphrase")
 
 
 
 # echo "${GRAVITEEBOT_GPG_PASSPHRASE}" | gpg --pinentry-mode loopback --passphrase-fd 0 --sign ./some-file-to-sign.txt
 
 # ---
-# That's Jean-Baptiste Lasselle's GPG_SIGNING_KEY for git (used as example)
+# That's Jean-Baptiste Lasselle's GPG SIGNING KEY ID for signing git commits n tags (used as example)
 export GPG_SIGNING_KEY_ID=7B19A8E1574C2883
 # ---
 # That's the GPG_SIGNING_KEY used buy the "Gravitee.io Lab Bot" for git and signing any file
@@ -380,11 +407,6 @@ echo "big size file, distributing the signature does not force distributing a ve
 echo "# ------------------------------------------------------------------------------------------------ #"
 
 
-
-
-
-
-
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # ------------------------------------------------------------------------------------------------ #
 # -- TESTS --   Now test verifying the signed file, using its detached signature       -- TESTS -- #
@@ -395,9 +417,9 @@ gpg --verify ./some-file-to-sign.txt.sig some-file-to-sign.txt
 echo "# ------------------------------------------------------------------------------------------------ #"
 echo "  Now testing verifying the file with its detached signature, in another Ephemeral GPG Keyring "
 echo "# ------------------------------------------------------------------------------------------------ #"
-export EPHEMERAL_KEYRING_FOLDER=$(mktemp -d)
-chmod 700 ${EPHEMERAL_KEYRING_FOLDER}
-export GNUPGHOME=${EPHEMERAL_KEYRING_FOLDER}
+export EPHEMERAL_KEYRING_FOLDER_TWO=$(mktemp -d)
+chmod 700 ${EPHEMERAL_KEYRING_FOLDER_TWO}
+export GNUPGHOME=${EPHEMERAL_KEYRING_FOLDER_TWO}
 # gpg --list-secret-keys
 # gpg --list-pub-keys
 gpg --list-keys
@@ -410,7 +432,7 @@ gpg --verify ./some-file-to-sign.txt.sig some-file-to-sign.txt
 echo "# ------------------------------------------------------------------------------------------------ #"
 echo "  Now let's switch to the created Ephemeral GPG Keyring (Ephemeral GPG Context)"
 echo "# ------------------------------------------------------------------------------------------------ #"
-export GNUPGHOME=${EPHEMERAL_KEYRING_FOLDER}
+export GNUPGHOME=${EPHEMERAL_KEYRING_FOLDER_TWO}
 # gpg --list-secret-keys
 # gpg --list-pub-keys
 gpg --list-keys
@@ -425,8 +447,8 @@ gpg --verify ./some-file-to-sign.txt.sig some-file-to-sign.txt
 # now we import the Public Key in the Ephemeral Context, trust it ultimately, and verify the file signature again
 gpg --import "${GPG_PUB_KEY_FILE}"
 # now we trust ultimately the Public Key in the Ephemeral Context,
-export GPG_SIGNING_KEY_ID=$(gpg --list-signatures -a "${GRAVITEEBOT_GPG_USER_NAME} <${GRAVITEEBOT_GPG_USER_EMAIL}>" | grep 'sig' | tail -n 1 | awk '{print $2}')
-echo "GPG_SIGNING_KEY_ID=[${GPG_SIGNING_KEY_ID}]"
+export GRAVITEEBOT_GPG_SIGNING_KEY=$(gpg --list-signatures -a "${GRAVITEEBOT_GPG_USER_NAME} (${GRAVITEEBOT_GPG_USER_NAME_COMMENT}) <${GRAVITEEBOT_GPG_USER_EMAIL}>" | grep 'sig' | tail -n 1 | awk '{print $2}')
+echo "GRAVITEEBOT - GPG_SIGNING_KEY=[${GRAVITEEBOT_GPG_SIGNING_KEY}]"
 
 echo -e "5\ny\n" |  gpg --command-fd 0 --expert --edit-key ${GPG_SIGNING_KEY_ID} trust
 
