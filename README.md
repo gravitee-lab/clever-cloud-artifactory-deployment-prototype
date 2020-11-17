@@ -231,6 +231,7 @@ exit 0
 # --- # --- # --- # --- # --- # --- # --- # --- # --- #
 # https://www.gnupg.org/documentation/manuals/gnupg-devel/Unattended-GPG-key-generation.html
 export GRAVITEEBOT_GPG_USER_NAME="Gravitee.io Lab Bot"
+export GRAVITEEBOT_GPG_USER_NAME_COMMENT="Gravitee CI CD Bot in the https://github.com/gravitee-lab Github Org"
 export GRAVITEEBOT_GPG_USER_EMAIL="contact@gravitee-lab.io"
 export GRAVITEEBOT_GPG_PASSPHRASE="th3gr@vit331sdab@s3"
 
@@ -240,32 +241,12 @@ echo "# -----------------------------------"
 export GNUPGHOME="$(mktemp -d)"
 cat >./gravitee-lab-cicd-bot.gpg <<EOF
 %echo Generating a basic OpenPGP key
-Key-Type: DSA
-Key-Length: 1024
-Subkey-Type: ELG-E
-Subkey-Length: 1024
-Name-Real: Joe Tester
-Name-Comment: with stupid passphrase
-Name-Email: joe@foo.bar
-Expire-Date: 0
-Passphrase: abc
-# Do a commit here, so that we can later print "done" :-)
-%commit
-%echo done
-EOF
-gpg --batch --generate-key ./gravitee-lab-cicd-bot.gpg
-echo "GNUPGHOME=[${GNUPGHOME}] remove taht directory when finished initializing secrets"
-ls -allh ${GNUPGHOME}
-
-export GNUPGHOME="$(mktemp -d)"
-cat >./gravitee-lab-cicd-bot.gpg <<EOF
-%echo Generating a basic OpenPGP key
-Key-Type: DSA
-Key-Length: 3072
-Subkey-Type: ELG-E
-Subkey-Length: 3072
+Key-Type: RSA
+Key-Length: 4096
+Subkey-Type: RSA
+Subkey-Length: 4096
 Name-Real: ${GRAVITEEBOT_GPG_USER_NAME}
-Name-Comment: Gravitee CI CD Bot in the https://github.com/gravitee-lab Github Org
+Name-Comment: ${GRAVITEEBOT_GPG_USER_NAME_COMMENT}
 Name-Email: ${GRAVITEEBOT_GPG_USER_EMAIL}
 Expire-Date: 0
 Passphrase: ${GRAVITEEBOT_GPG_PASSPHRASE}
@@ -277,10 +258,10 @@ gpg --batch --generate-key ./gravitee-lab-cicd-bot.gpg
 echo "GNUPGHOME=[${GNUPGHOME}] remove that directory when finished initializing secrets"
 ls -allh ${GNUPGHOME}
 gpg --list-secret-keys
+gpg --list-keys
 
-
-export GRAVITEEBOT_GPG_SIGNING_KEY=$(gpg --list-signatures -a "${GRAVITEEBOT_GPG_USER_NAME} <${GRAVITEEBOT_GPG_USER_EMAIL}>" | grep 'sig' | tail -n 1 | awk '{print $2}')
-echo "GRAVITEEBOT - GPG_SIGNING_KEY=[${GPG_SIGNING_KEY}]"
+export GRAVITEEBOT_GPG_SIGNING_KEY=$(gpg --list-signatures -a "${GRAVITEEBOT_GPG_USER_NAME} (${GRAVITEEBOT_GPG_USER_NAME_COMMENT}) <${GRAVITEEBOT_GPG_USER_EMAIL}>" | grep 'sig' | tail -n 1 | awk '{print $2}')
+echo "GRAVITEEBOT - GPG_SIGNING_KEY=[${GRAVITEEBOT_GPG_SIGNING_KEY}]"
 
 
 # ------------------------------------------------------------------------------------------------ #
