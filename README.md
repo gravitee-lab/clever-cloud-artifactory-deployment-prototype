@@ -369,8 +369,8 @@ export GRAVITEEBOT_GPG_PASSPHRASE=$(secrethub read "${SECRETHUB_ORG}/${SECRETHUB
 export GPG_SIGNING_KEY_ID=7B19A8E1574C2883
 # ---
 # That's the GPG_SIGNING_KEY used buy the "Gravitee.io Lab Bot" for git and signing any file
-export GRAVITEEBOT_GPG_SIGNING_KEY=$(gpg --list-signatures -a "${GRAVITEEBOT_GPG_USER_NAME} (${GRAVITEEBOT_GPG_USER_NAME_COMMENT}) <${GRAVITEEBOT_GPG_USER_EMAIL}>" | grep 'sig' | tail -n 1 | awk '{print $2}')
-echo "GRAVITEEBOT - GPG_SIGNING_KEY=[${GRAVITEEBOT_GPG_SIGNING_KEY}]"
+export GRAVITEEBOT_GPG_SIGNING_KEY_ID=$(gpg --list-signatures -a "${GRAVITEEBOT_GPG_USER_NAME} (${GRAVITEEBOT_GPG_USER_NAME_COMMENT}) <${GRAVITEEBOT_GPG_USER_EMAIL}>" | grep 'sig' | tail -n 1 | awk '{print $2}')
+echo "GRAVITEEBOT_GPG_SIGNING_KEY_ID=[${GRAVITEEBOT_GPG_SIGNING_KEY_ID}]"
 
 gpg --keyid-format LONG -k "0x${GRAVITEEBOT_GPG_SIGNING_KEY}"
 
@@ -447,12 +447,18 @@ gpg --verify ./some-file-to-sign.txt.sig some-file-to-sign.txt
 # now we import the Public Key in the Ephemeral Context, trust it ultimately, and verify the file signature again
 gpg --import "${GPG_PUB_KEY_FILE}"
 # now we trust ultimately the Public Key in the Ephemeral Context,
-export GRAVITEEBOT_GPG_SIGNING_KEY=$(gpg --list-signatures -a "${GRAVITEEBOT_GPG_USER_NAME} (${GRAVITEEBOT_GPG_USER_NAME_COMMENT}) <${GRAVITEEBOT_GPG_USER_EMAIL}>" | grep 'sig' | tail -n 1 | awk '{print $2}')
-echo "GRAVITEEBOT - GPG_SIGNING_KEY=[${GRAVITEEBOT_GPG_SIGNING_KEY}]"
+export GRAVITEEBOT_GPG_SIGNING_KEY_ID=$(gpg --list-signatures -a "${GRAVITEEBOT_GPG_USER_NAME} (${GRAVITEEBOT_GPG_USER_NAME_COMMENT}) <${GRAVITEEBOT_GPG_USER_EMAIL}>" | grep 'sig' | tail -n 1 | awk '{print $2}')
+echo "GRAVITEEBOT_GPG_SIGNING_KEY_ID=[${GRAVITEEBOT_GPG_SIGNING_KEY_ID}]"
 
 echo -e "5\ny\n" |  gpg --command-fd 0 --expert --edit-key ${GPG_SIGNING_KEY_ID} trust
 
-# And verify the file signature again
+# ++
+# ++ To ultimately trust ALL Keys :
+# for fpr in $(gpg --list-keys --with-colons  | awk -F: '/fpr:/ {print $10}' | sort -u); do  echo -e "5\ny\n" |  gpg --command-fd 0 --expert --edit-key $fpr trust; done
+# ++
+
+# ++
+# And finally verify the file signature again
 gpg --verify ./some-file-to-sign.txt.sig some-file-to-sign.txt
 
 
